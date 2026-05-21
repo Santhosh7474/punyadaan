@@ -15,12 +15,17 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     FlutterNativeSplash.remove();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(const Duration(milliseconds: 1500), () {
-        if (!mounted) return;
-        Navigator.of(context).pushReplacementNamed(AppRouter.auth);
-      });
-    });
+    _initApp();
+  }
+
+  Future<void> _initApp() async {
+    // Let the splash animation render for at least one frame
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    if (!mounted) return;
+
+    // Navigate to auth gate — permissions are requested after login
+    Navigator.of(context).pushReplacementNamed(AppRouter.auth);
   }
 
   @override

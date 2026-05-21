@@ -52,6 +52,8 @@ dependencies:
   qr_flutter: ^4.1.0
   app_links: ^7.0.0
   share_plus: ^10.1.4
+  audioplayers: ^6.1.0
+  firebase_messaging: ^15.2.5
 
 dev_dependencies:
   flutter_test:
@@ -103,6 +105,8 @@ flutter:
     - assets/role/
     - assets/splash/
     - assets/
+    - assets/bell_sound.mp3
+    - assets/bell_sound.mpeg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

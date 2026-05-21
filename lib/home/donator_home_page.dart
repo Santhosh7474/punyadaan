@@ -8,6 +8,9 @@ import 'package:geocoding/geocoding.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:app_links/app_links.dart';
 import '../profile/profile_page.dart';
+import '../services/permission_service.dart';
+import '../services/fcm_service.dart';
+import 'notifications_screen.dart';
 import 'scanner_screen.dart';
 import 'event_screen.dart';
 import 'category_all_screen.dart';
@@ -67,6 +70,14 @@ class _DemoHomePageState extends State<DemoHomePage> {
     super.initState();
     _initLocation();
     _speechToText.initialize();
+
+    // Request all permissions one-by-one AFTER login (not at splash)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        PermissionService.requestAllPermissions(context);
+        FCMService.init(); // Initialize FCM and save token to Firestore
+      }
+    });
     _orgTempleStream = FirebaseFirestore.instance
         .collection('organizations')
         .where('status', isEqualTo: 'approved')
@@ -160,6 +171,7 @@ class _DemoHomePageState extends State<DemoHomePage> {
 
     _initDeepLinks();
   }
+
 
   Future<void> _initDeepLinks() async {
     _appLinks = AppLinks();
@@ -530,8 +542,10 @@ class _DemoHomePageState extends State<DemoHomePage> {
         // Sort client-side by createdAt desc, take max 3
         final docs = List.from(snap.data!.docs)
           ..sort((a, b) {
-            final aTs = (a.data() as Map<String, dynamic>)['createdAt'] as Timestamp?;
-            final bTs = (b.data() as Map<String, dynamic>)['createdAt'] as Timestamp?;
+            final aTs =
+                (a.data() as Map<String, dynamic>)['createdAt'] as Timestamp?;
+            final bTs =
+                (b.data() as Map<String, dynamic>)['createdAt'] as Timestamp?;
             if (aTs == null && bTs == null) return 0;
             if (aTs == null) return 1;
             if (bTs == null) return -1;
@@ -613,13 +627,16 @@ class _DemoHomePageState extends State<DemoHomePage> {
                     filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 14),
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.78),
                         borderRadius: BorderRadius.circular(18),
                         border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.9),
-                            width: 1.2),
+                          color: Colors.white.withValues(alpha: 0.9),
+                          width: 1.2,
+                        ),
                       ),
                       child: Row(
                         children: [
@@ -628,8 +645,9 @@ class _DemoHomePageState extends State<DemoHomePage> {
                             width: 44,
                             height: 44,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF24963F)
-                                  .withValues(alpha: 0.1),
+                              color: const Color(
+                                0xFF24963F,
+                              ).withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(
@@ -680,10 +698,13 @@ class _DemoHomePageState extends State<DemoHomePage> {
                               const SizedBox(height: 3),
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 7, vertical: 2),
+                                  horizontal: 7,
+                                  vertical: 2,
+                                ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF24963F)
-                                      .withValues(alpha: 0.1),
+                                  color: const Color(
+                                    0xFF24963F,
+                                  ).withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: const Text(
@@ -1494,8 +1515,17 @@ class _DemoHomePageState extends State<DemoHomePage> {
                                     ],
                                   ),
                                 ),
+                                // Notifications
                                 IconButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            const NotificationsScreen(),
+                                      ),
+                                    );
+                                  },
                                   icon: const Icon(
                                     Icons.notifications_none_rounded,
                                     color: Colors.black87,
@@ -1720,7 +1750,7 @@ class _DemoHomePageState extends State<DemoHomePage> {
                                   const SizedBox(width: 12),
                                   _CategoryItem(
                                     title: 'Yogdaan',
-                                    imageAsset: 'assets/home/Gaushala.png',
+                                    imageAsset: 'assets/home/YogDaan.png',
                                     onTap: () => Navigator.push(
                                       context,
                                       MaterialPageRoute(

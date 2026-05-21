@@ -9,6 +9,7 @@ import 'donee_create_event_screen.dart';
 import 'donee_temple_tab.dart';
 import 'donee_your_events_screen.dart';
 import '../profile/donee_profile_screen.dart';
+import '../services/fcm_service.dart';
 
 class DoneeHomePage extends StatefulWidget {
   const DoneeHomePage({super.key});
@@ -33,6 +34,13 @@ class _DoneeHomePageState extends State<DoneeHomePage> {
     super.initState();
     _checkSubscriptionStatus();
     _listenToOrganization();
+    
+    // Initialize FCM and request permissions after login
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        FCMService.init();
+      }
+    });
   }
 
   Future<void> _checkSubscriptionStatus() async {

@@ -11,6 +11,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:punyadaan/services/notification_sound_service.dart';
 
 class DoneeEditProfileScreen extends StatefulWidget {
   const DoneeEditProfileScreen({super.key});
@@ -40,8 +41,9 @@ class _DoneeEditProfileScreenState extends State<DoneeEditProfileScreen> {
   final _locationController = TextEditingController();
   bool _detectingLocation = false;
 
-  // ── Notifications ─────────────────────────────────────────────────
+  // ── Notifications ───────────────────────────────────────────────────
   bool _notificationsEnabled = true;
+  bool _bellSoundEnabled = true;
 
   // ── Document upload ──────────────────────────────────────────────
   File? _registrationDoc;
@@ -99,6 +101,7 @@ class _DoneeEditProfileScreenState extends State<DoneeEditProfileScreen> {
         _locationController.text = d['location'] ?? '';
         _docUrl = d['registrationDocUrl'] as String?;
         _notificationsEnabled = d['notificationsEnabled'] ?? true;
+        _bellSoundEnabled = d['bellSoundEnabled'] ?? true;
       }
     } catch (_) {}
 
@@ -227,6 +230,7 @@ class _DoneeEditProfileScreenState extends State<DoneeEditProfileScreen> {
         'location': _locationController.text.trim(),
         'registrationDocUrl': _docUrl ?? '',
         'notificationsEnabled': _notificationsEnabled,
+        'bellSoundEnabled': _bellSoundEnabled,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
@@ -396,6 +400,8 @@ class _DoneeEditProfileScreenState extends State<DoneeEditProfileScreen> {
                         'Notifications', Icons.notifications_rounded),
                     const SizedBox(height: 12),
                     _notificationCard(),
+                    const SizedBox(height: 10),
+                    _bellSoundCard(),
 
                     const SizedBox(height: 36),
 
@@ -732,8 +738,83 @@ class _DoneeEditProfileScreenState extends State<DoneeEditProfileScreen> {
                 value: _notificationsEnabled,
                 activeThumbColor: _primaryGreen,
                 activeTrackColor: _primaryGreen.withValues(alpha: 0.3),
-                onChanged: (val) =>
-                    setState(() => _notificationsEnabled = val),
+                onChanged: (val) async {
+                  setState(() => _notificationsEnabled = val);
+                  if (val) {
+                    // Play a preview so the user hears the bell immediately
+                    await NotificationSoundService.playDirect();
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Bell Sound card ──────────────────────────────────────────────
+  Widget _bellSoundCard() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(18),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.72),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+                color: Colors.white.withValues(alpha: 0.9), width: 1.2),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4)),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: _bellSoundEnabled
+                      ? _primaryGreen.withValues(alpha: 0.1)
+                      : Colors.grey.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  _bellSoundEnabled
+                      ? Icons.volume_up_rounded
+                      : Icons.volume_off_rounded,
+                  color: _bellSoundEnabled ? _primaryGreen : Colors.grey,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Bell Sound',
+                        style: TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w700)),
+                    Text(
+                      _bellSoundEnabled ? 'Plays on notification' : 'Silent',
+                      style: TextStyle(
+                          fontSize: 12, color: Colors.grey.shade500),
+                    ),
+                  ],
+                ),
+              ),
+              Switch(
+                value: _bellSoundEnabled,
+                activeThumbColor: _primaryGreen,
+                activeTrackColor: _primaryGreen.withValues(alpha: 0.3),
+                onChanged: (val) async {
+                  setState(() => _bellSoundEnabled = val);
+                  if (val) await NotificationSoundService.playDirect();
+                },
               ),
             ],
           ),

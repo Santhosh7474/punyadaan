@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:punyadaan/services/notification_sound_service.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -17,6 +18,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   bool _isSaving = false;
   bool _isDetectingLocation = false;
   bool _notificationsEnabled = true;
+  bool _bellSoundEnabled = true;
 
   final _firstNameCtrl = TextEditingController();
   final _lastNameCtrl = TextEditingController();
@@ -52,6 +54,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _aadharCtrl.text = data['aadharNumber'] ?? '';
       _panCtrl.text = data['panNumber'] ?? '';
       _notificationsEnabled = data['notificationsEnabled'] ?? true;
+      _bellSoundEnabled = data['bellSoundEnabled'] ?? true;
     });
   }
 
@@ -115,6 +118,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         'aadharNumber': _aadharCtrl.text.trim(),
         'panNumber': _panCtrl.text.trim().toUpperCase(),
         'notificationsEnabled': _notificationsEnabled,
+        'bellSoundEnabled': _bellSoundEnabled,
       }, SetOptions(merge: true));
 
       // Update display name in Firebase Auth
@@ -316,7 +320,42 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       Switch(
                         value: _notificationsEnabled,
                         activeThumbColor: const Color(0xFFB71C1C),
-                        onChanged: (val) => setState(() => _notificationsEnabled = val),
+                        onChanged: (val) async {
+                          setState(() => _notificationsEnabled = val);
+                          if (val) {
+                            // Play a preview so the user hears the bell
+                            await NotificationSoundService.playDirect();
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1, indent: 48),
+                // Bell Sound toggle
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.volume_up_rounded, color: Colors.black87, size: 22),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Bell Sound', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.black87)),
+                            SizedBox(height: 2),
+                            Text('Play sound when notification arrives', style: TextStyle(fontSize: 12, color: Colors.black45)),
+                          ],
+                        ),
+                      ),
+                      Switch(
+                        value: _bellSoundEnabled,
+                        activeThumbColor: const Color(0xFFB71C1C),
+                        onChanged: (val) async {
+                          setState(() => _bellSoundEnabled = val);
+                          if (val) await NotificationSoundService.playDirect();
+                        },
                       ),
                     ],
                   ),
