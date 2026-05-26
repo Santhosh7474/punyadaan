@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +19,6 @@ class DoneeHomePage extends StatefulWidget {
 
 class _DoneeHomePageState extends State<DoneeHomePage> {
   int _currentNavIndex = 0;
-  final double _navOpacity = 0.95;
   bool _isSubscribed = false;
 
   // ── Dynamic bottom nav tab (changes after org registration) ─────
@@ -299,68 +297,56 @@ class _DoneeHomePageState extends State<DoneeHomePage> {
                   DoneeProfileScreen(),
                 ],
               ),
-              // Floating Frosted Bottom Navigation Bar
+              // Floating Crimson Bottom Navigation Bar
               Positioned(
                 bottom: 24,
                 left: 20,
                 right: 20,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(40),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 400),
-                      curve: Curves.easeOutQuint,
-                      height: 76,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: _navOpacity * 0.4),
-                        borderRadius: BorderRadius.circular(40),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.8),
-                          width: 1.5,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.15),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
+                child: Container(
+                  height: 68,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFB71C1C),
+                    borderRadius: BorderRadius.circular(40),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFB71C1C).withValues(alpha: 0.45),
+                        blurRadius: 24,
+                        offset: const Offset(0, 10),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _BottomNavItem(
-                            icon: _doneeTabIcon,
-                            activeIcon: _doneeTabActiveIcon,
-                            label: _doneeTabLabel,
-                            isActive: _currentNavIndex == 0,
-                            onTap: () => setState(() => _currentNavIndex = 0),
-                          ),
-                          _BottomNavItem(
-                            icon: Icons.event_note_outlined,
-                            activeIcon: Icons.event_note_rounded,
-                            label: 'Events',
-                            isActive: _currentNavIndex == 1,
-                            onTap: () {
-                              if (_isSubscribed) {
-                                setState(() => _currentNavIndex = 1);
-                              } else {
-                                _showSubscriptionDialog();
-                              }
-                            },
-                          ),
-                          _BottomNavItem(
-                            icon: Icons.person_outline_rounded,
-                            activeIcon: Icons.person_rounded,
-                            label: 'Profile',
-                            isActive: _currentNavIndex == 2,
-                            onTap: () => setState(() => _currentNavIndex = 2),
-                          ),
-                        ],
+                    ],
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _BottomNavItem(
+                        icon: _doneeTabIcon,
+                        activeIcon: _doneeTabActiveIcon,
+                        label: _doneeTabLabel,
+                        isActive: _currentNavIndex == 0,
+                        onTap: () => setState(() => _currentNavIndex = 0),
                       ),
-                    ),
+                      _BottomNavItem(
+                        icon: Icons.event_note_outlined,
+                        activeIcon: Icons.event_note_rounded,
+                        label: 'Events',
+                        isActive: _currentNavIndex == 1,
+                        onTap: () {
+                          if (_isSubscribed) {
+                            setState(() => _currentNavIndex = 1);
+                          } else {
+                            _showSubscriptionDialog();
+                          }
+                        },
+                      ),
+                      _BottomNavItem(
+                        icon: Icons.person_outline_rounded,
+                        activeIcon: Icons.person_rounded,
+                        label: 'Profile',
+                        isActive: _currentNavIndex == 2,
+                        onTap: () => setState(() => _currentNavIndex = 2),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -389,25 +375,25 @@ class _BottomNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const activeColor = Color(0xFF24963F); // Match donator green
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeOutQuint,
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeOutCubic,
         padding: EdgeInsets.symmetric(
-          horizontal: isActive ? 20 : 12,
-          vertical: 12,
+          horizontal: isActive ? 18 : 14,
+          vertical: 10,
         ),
         decoration: BoxDecoration(
-          color: isActive ? Colors.white : Colors.transparent,
+          // Active pill: golden-yellow; inactive: transparent
+          color: isActive ? const Color(0xFFE8B000) : Colors.transparent,
           borderRadius: BorderRadius.circular(30),
           boxShadow: isActive
               ? [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 10,
+                    color: const Color(0xFFE8B000).withValues(alpha: 0.45),
+                    blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
                 ]
@@ -416,14 +402,10 @@ class _BottomNavItem extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              isActive ? activeIcon : icon,
-              color: isActive ? activeColor : Colors.black87,
-              size: 26,
-            ),
+            Icon(isActive ? activeIcon : icon, color: Colors.white, size: 26),
             AnimatedSize(
-              duration: const Duration(milliseconds: 400),
-              curve: Curves.easeOutQuint,
+              duration: const Duration(milliseconds: 350),
+              curve: Curves.easeOutCubic,
               alignment: Alignment.centerLeft,
               child: isActive
                   ? Padding(
@@ -433,8 +415,8 @@ class _BottomNavItem extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
-                          color: activeColor,
-                          letterSpacing: 0.2,
+                          color: Colors.white,
+                          letterSpacing: 0.3,
                         ),
                         maxLines: 1,
                       ),
