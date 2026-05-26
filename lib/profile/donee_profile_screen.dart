@@ -292,15 +292,18 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
                                       ? null
                                       : () async {
                                           setBtn(() => _isDeactivating = true);
+                                          final messenger =
+                                              ScaffoldMessenger.of(context);
                                           try {
                                             await DeactivationService
                                                 .requestDeactivation('donee');
-                                            if (mounted) {
+                                            if (ctx.mounted) {
                                               Navigator.pop(ctx);
+                                            }
+                                            if (mounted) {
                                               setState(() =>
                                                   _deactivationStatus = 'pending');
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(const SnackBar(
+                                              messenger.showSnackBar(const SnackBar(
                                                 content: Text(
                                                     'Deactivation request sent to admin.'),
                                                 backgroundColor:
@@ -309,9 +312,8 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
                                             }
                                           } catch (e) {
                                             if (mounted) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(SnackBar(
-                                                      content: Text('Error: $e')));
+                                              messenger.showSnackBar(SnackBar(
+                                                  content: Text('Error: $e')));
                                             }
                                           } finally {
                                             if (mounted) {

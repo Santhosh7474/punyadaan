@@ -513,7 +513,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         return ListView.separated(
           padding: const EdgeInsets.all(16),
           itemCount: docs.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          separatorBuilder: (_, _) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             final doc = docs[index];
             final data = doc.data() as Map<String, dynamic>;
@@ -650,6 +650,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                           child: OutlinedButton.icon(
                             onPressed: () async {
                               // Reject
+                              final messenger = ScaffoldMessenger.of(context);
                               await FirebaseFirestore.instance
                                   .collection('deactivation_requests')
                                   .doc(doc.id)
@@ -659,7 +660,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                   .doc(doc.id)
                                   .update({'deactivationStatus': 'none'});
                               if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                messenger.showSnackBar(
                                   const SnackBar(
                                       content:
                                           Text('Request rejected.')));
@@ -685,6 +686,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                           child: ElevatedButton.icon(
                             onPressed: () async {
                               // Approve — set deactivateAt 12 days from now
+                              final messenger = ScaffoldMessenger.of(context);
                               final now = DateTime.now();
                               final deactivateAt =
                                   now.add(const Duration(days: 12));
@@ -708,7 +710,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                 'deactivateAt': deactivateTs,
                               });
                               if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                messenger.showSnackBar(
                                   SnackBar(
                                     content: Text(
                                         'Approved. Account deactivates on ${deactivateAt.day}/${deactivateAt.month}/${deactivateAt.year}.'),
