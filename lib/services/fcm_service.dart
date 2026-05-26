@@ -31,11 +31,7 @@ class FCMService {
   /// Call this once after the user has logged in (e.g. inside DemoHomePage.initState).
   static Future<void> init() async {
     // 1. Request permission (Android 13+ / iOS)
-    await _messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    await _messaging.requestPermission(alert: true, badge: true, sound: true);
 
     // 2. Get token and save to Firestore
     await _saveToken();
@@ -80,10 +76,9 @@ class FCMService {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
     try {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(uid)
-          .set({'fcmToken': token}, SetOptions(merge: true));
+      await FirebaseFirestore.instance.collection('users').doc(uid).set({
+        'fcmToken': token,
+      }, SetOptions(merge: true));
     } catch (e) {
       debugPrint('FCMService: failed to persist token: $e');
     }
@@ -105,12 +100,12 @@ class FCMService {
           .doc(uid)
           .collection('notifications')
           .add({
-        'title': message.notification?.title ?? 'Notification',
-        'body': message.notification?.body ?? '',
-        'type': message.data['type'] ?? 'general',
-        'read': false,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+            'title': message.notification?.title ?? 'Notification',
+            'body': message.notification?.body ?? '',
+            'type': message.data['type'] ?? 'general',
+            'read': false,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
     } catch (e) {
       debugPrint('FCMService: failed to save notification: $e');
     }
@@ -122,8 +117,6 @@ class FCMService {
   /// Called when user taps a notification to open the app.
   static void _handleTap(RemoteMessage message) {
     debugPrint('FCM [tap]: ${message.notification?.title}');
-    // TODO: Navigate to NotificationsScreen or a specific screen based on
-    // message.data['type'] or message.data['screen'].
   }
 
   // ── Public utility ───────────────────────────────────────────────────
