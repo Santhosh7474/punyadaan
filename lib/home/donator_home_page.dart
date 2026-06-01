@@ -12,7 +12,7 @@ import '../services/permission_service.dart';
 import '../services/fcm_service.dart';
 import 'notifications_screen.dart';
 import 'scanner_screen.dart';
-import 'event_screen.dart';
+import 'donee_your_events_screen.dart';
 import 'category_all_screen.dart';
 import 'organization_detail_screen.dart';
 import '../models/organization_model.dart';
@@ -567,7 +567,7 @@ class _DemoHomePageState extends State<DemoHomePage> {
                       height: 22,
                       margin: const EdgeInsets.only(right: 10),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF24963F),
+                        color: const Color(0xFFF0A500),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -576,7 +576,7 @@ class _DemoHomePageState extends State<DemoHomePage> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
-                        color: Colors.black87,
+                        color: Color(0xFFB71C1C),
                       ),
                     ),
                   ],
@@ -584,11 +584,11 @@ class _DemoHomePageState extends State<DemoHomePage> {
                 GestureDetector(
                   onTap: () => setState(() => _currentNavIndex = 3),
                   child: const Text(
-                    'See all',
+                    'View all',
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF24963F),
+                      color: Color(0xFFF0A500),
                     ),
                   ),
                 ),
@@ -645,14 +645,12 @@ class _DemoHomePageState extends State<DemoHomePage> {
                             width: 44,
                             height: 44,
                             decoration: BoxDecoration(
-                              color: const Color(
-                                0xFF24963F,
-                              ).withValues(alpha: 0.1),
+                              color: const Color(0xFFF0A500).withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(
                               Icons.volunteer_activism_rounded,
-                              color: Color(0xFF24963F),
+                              color: Color(0xFFF0A500),
                               size: 22,
                             ),
                           ),
@@ -688,7 +686,7 @@ class _DemoHomePageState extends State<DemoHomePage> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                '-₹${amount.toStringAsFixed(0)}',
+                                '₹${amount.toStringAsFixed(0)}',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w800,
@@ -739,7 +737,7 @@ class _DemoHomePageState extends State<DemoHomePage> {
       children: [
         Row(
           children: [
-            const Icon(Icons.leaderboard_rounded, color: Color(0xFF24963F)),
+            const Icon(Icons.leaderboard_rounded, color: Color(0xFFF0A500)),
             const SizedBox(width: 8),
             const Expanded(
               child: Text(
@@ -747,7 +745,7 @@ class _DemoHomePageState extends State<DemoHomePage> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
-                  color: Colors.black87,
+                  color: Color(0xFFB71C1C),
                 ),
               ),
             ),
@@ -758,12 +756,12 @@ class _DemoHomePageState extends State<DemoHomePage> {
                   MaterialPageRoute(builder: (_) => const AllDonatorsScreen()),
                 );
               },
-              child: Text(
+              child: const Text(
                 'View All >',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade700,
+                  color: Color(0xFFF0A500),
                 ),
               ),
             ),
@@ -843,12 +841,13 @@ class _DemoHomePageState extends State<DemoHomePage> {
 
                   return ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: Colors.grey.shade200,
+                      backgroundColor: const Color(0xFFFFF3D6),
                       backgroundImage: photoUrl != null
                           ? NetworkImage(photoUrl)
                           : null,
                       child: photoUrl == null
-                          ? const Icon(Icons.person, color: Colors.grey)
+                          ? const Icon(Icons.person_rounded,
+                              color: Color(0xFFF0A500))
                           : null,
                     ),
                     title: Text(
@@ -856,6 +855,7 @@ class _DemoHomePageState extends State<DemoHomePage> {
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
+                        color: Color(0xFF5C4033),
                       ),
                     ),
                     trailing: Container(
@@ -864,13 +864,13 @@ class _DemoHomePageState extends State<DemoHomePage> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.amber.shade100,
+                        color: const Color(0xFFE8F5E9),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         '₹${score.toStringAsFixed(0)}',
-                        style: TextStyle(
-                          color: Colors.amber.shade900,
+                        style: const TextStyle(
+                          color: Color(0xFF24963F),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -1484,7 +1484,7 @@ class _DemoHomePageState extends State<DemoHomePage> {
                                         style: const TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.w700,
-                                          color: Colors.black87,
+                                          color: Color(0xFF5C4033),
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
@@ -1528,7 +1528,7 @@ class _DemoHomePageState extends State<DemoHomePage> {
                                   },
                                   icon: const Icon(
                                     Icons.notifications_none_rounded,
-                                    color: Colors.black87,
+                                    color: Color(0xFF5C4033),
                                     size: 28,
                                   ),
                                 ),
@@ -1749,7 +1749,7 @@ class _DemoHomePageState extends State<DemoHomePage> {
                                   ),
                                   const SizedBox(width: 12),
                                   _CategoryItem(
-                                    title: 'Yogdaan',
+                                    title: 'YogDaan',
                                     imageAsset: 'assets/home/YogDaan.png',
                                     onTap: () => Navigator.push(
                                       context,
@@ -1818,7 +1818,7 @@ class _DemoHomePageState extends State<DemoHomePage> {
                       ),
                     ),
                   ), // End of SingleChildScrollView
-                  const EventScreen(),
+                  const DoneeYourEventsScreen(showCreateButton: true),
                   const Center(child: Text('Scan Screen - Coming Soon')),
                   const TransactionsScreen(),
                 ],
@@ -1973,7 +1973,7 @@ class _DemoHomePageState extends State<DemoHomePage> {
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: Colors.black,
+                  color: Color(0xFFB71C1C),
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -1993,12 +1993,12 @@ class _DemoHomePageState extends State<DemoHomePage> {
                   ),
                 );
               },
-              child: Text(
+              child: const Text(
                 'View All >',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade700,
+                  color: Color(0xFFF0A500),
                 ),
               ),
             ),
@@ -2142,80 +2142,45 @@ class _CategoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isYogdaan = title == 'YogDaan';
     return SizedBox(
-      width: 90,
+      width: isYogdaan ? 100 : 90,
       child: GestureDetector(
         onTap: onTap,
-        child: Container(
-          height:
-              104, // Reduced height for more compact visually appealing boxes
-          margin: const EdgeInsets.symmetric(
-            horizontal: 5,
-          ), // Reduced slightly to prevent narrow screens crowding
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.shade400.withValues(alpha: 0.4),
-                blurRadius: 16,
-                spreadRadius: 2,
-                offset: const Offset(2, 6),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(24),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.65), // Glassy fill
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    width: 1.5,
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 12),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Image.asset(
-                          imageAsset,
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Center(
-                                child: Icon(Icons.category, color: Colors.grey),
-                              ),
-                        ),
-                      ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: isYogdaan ? 72 : 64,
+              width: isYogdaan ? 72 : 64,
+              child: Image.asset(
+                imageAsset,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) =>
+                    const Center(
+                      child: Icon(Icons.category, color: Colors.grey),
                     ),
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: Text(
-                        title,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                          height: 1.1,
-                          color: Colors.black87,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                  ],
-                ),
               ),
             ),
-          ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  height: 1.1,
+                  color: Color(0xFF5C4033),
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
-      ), // Expanded
+      ),
     );
   }
 }
@@ -2369,7 +2334,7 @@ class _TempleCard extends StatelessWidget {
                                         style: const TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w700,
-                                          color: Colors.black87,
+                                          color: Color(0xFF5C4033),
                                         ),
                                         overflow: TextOverflow.ellipsis,
                                         maxLines: 1,
@@ -2441,13 +2406,13 @@ class _BottomNavItem extends StatelessWidget {
           vertical: 10,
         ),
         decoration: BoxDecoration(
-          // Active pill: golden-yellow; inactive: transparent
-          color: isActive ? const Color(0xFFE8B000) : Colors.transparent,
+          // Active pill: Primary Gold; inactive: transparent
+          color: isActive ? const Color(0xFFF0A500) : Colors.transparent,
           borderRadius: BorderRadius.circular(30),
           boxShadow: isActive
               ? [
                   BoxShadow(
-                    color: const Color(0xFFE8B000).withValues(alpha: 0.45),
+                    color: const Color(0xFFF0A500).withValues(alpha: 0.45),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -2457,7 +2422,9 @@ class _BottomNavItem extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(isActive ? activeIcon : icon, color: Colors.white, size: 26),
+            Icon(isActive ? activeIcon : icon,
+                color: Colors.white,
+                size: 26),
             AnimatedSize(
               duration: const Duration(milliseconds: 350),
               curve: Curves.easeOutCubic,

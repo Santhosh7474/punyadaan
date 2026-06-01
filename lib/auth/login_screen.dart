@@ -106,22 +106,25 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: IntrinsicHeight(
+        child: Column(
+          children: [
+            // ── Top section (logo + form) ──────────────────────────
+            Expanded(
+              child: SingleChildScrollView(
+                // only scrolls if truly needed on tiny screens
+                physics: const ClampingScrollPhysics(),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
                     children: [
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 20),
                       Image.asset(
                         _logoAsset,
-                        height: 120,
+                        height: 100,
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) => Container(
-                          height: 120,
-                          width: 120,
+                          height: 100,
+                          width: 100,
                           decoration: BoxDecoration(
                             color: Colors.black.withValues(alpha: 0.05),
                             shape: BoxShape.circle,
@@ -130,10 +133,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: const Icon(Icons.image_not_supported_outlined),
                         ),
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
                       Image.asset(
                         _appNameAsset,
-                        height: 52,
+                        height: 44,
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) => Text(
                           'PunyaDaan',
@@ -141,45 +144,40 @@ class _LoginScreenState extends State<LoginScreen> {
                               ?.copyWith(fontWeight: FontWeight.w800),
                         ),
                       ),
-                      const SizedBox(height: 60),
+                      const SizedBox(height: 36),
                       Text(
                         'Log in or sign up',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        style:
+                            Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w800,
                           color: Colors.black,
-                          fontSize: 24,
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: _PhoneNumberField(
-                          borderColor: oliveDark,
-                          controller: _phoneController,
+                          fontSize: 22,
                         ),
                       ),
                       const SizedBox(height: 24),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: SizedBox(
-                          height: 48,
-                          width: double.infinity,
-                          child: FilledButton(
-                            onPressed: _onPhone,
-                            style: FilledButton.styleFrom(
-                              backgroundColor: olive,
-                              foregroundColor: Colors.white,
-                              shape: const StadiumBorder(),
-                              textStyle: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w400,
-                              ),
+                      _PhoneNumberField(
+                        borderColor: oliveDark,
+                        controller: _phoneController,
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        height: 48,
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: _onPhone,
+                          style: FilledButton.styleFrom(
+                            backgroundColor: olive,
+                            foregroundColor: Colors.white,
+                            shape: const StadiumBorder(),
+                            textStyle: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w400,
                             ),
-                            child: const Text('Continue'),
                           ),
+                          child: const Text('Continue'),
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 20),
                       const Text(
                         'OR',
                         style: TextStyle(
@@ -188,45 +186,42 @@ class _LoginScreenState extends State<LoginScreen> {
                           fontSize: 16,
                         ),
                       ),
-                      const SizedBox(height: 32),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: SizedBox(
-                          height: 50,
-                          width: double.infinity,
-                          child: OutlinedButton(
-                            onPressed: _googleLoading ? null : _onGoogle,
-                            style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: oliveDark, width: 2),
-                              shape: const StadiumBorder(),
-                              foregroundColor: Colors.black87,
-                              textStyle: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w400,
-                              ),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        height: 50,
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: _googleLoading ? null : _onGoogle,
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: oliveDark, width: 2),
+                            shape: const StadiumBorder(),
+                            foregroundColor: Colors.black87,
+                            textStyle: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w400,
                             ),
-                            child: _googleLoading
-                                ? const SizedBox(
-                                    width: 22,
-                                    height: 22,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.5,
-                                    ),
-                                  )
-                                : const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      _GoogleMark(),
-                                      SizedBox(width: 10),
-                                      Text('Sign in with Google'),
-                                    ],
-                                  ),
                           ),
+                          child: _googleLoading
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    _GoogleMark(),
+                                    SizedBox(width: 10),
+                                    Text('Sign in with Google'),
+                                  ],
+                                ),
                         ),
                       ),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 24),
                       SizedBox(
-                        height: 64,
+                        height: 56,
                         child: Image.asset(
                           _trustBadgesAsset,
                           fit: BoxFit.contain,
@@ -234,23 +229,23 @@ class _LoginScreenState extends State<LoginScreen> {
                               const SizedBox.shrink(),
                         ),
                       ),
-                      const SizedBox(height: 24),
-                      const Spacer(),
-                      Image.asset(
-                        _bottomIllustrationAsset,
-                        width: double.infinity,
-                        height: 200,
-                        fit: BoxFit.fitWidth,
-                        alignment: Alignment.bottomCenter,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const SizedBox.shrink(),
-                      ),
                     ],
                   ),
                 ),
               ),
-            );
-          },
+            ),
+
+            // ── Bottom illustration — always pinned at bottom ──────
+            Image.asset(
+              _bottomIllustrationAsset,
+              width: double.infinity,
+              height: 180,
+              fit: BoxFit.fitWidth,
+              alignment: Alignment.bottomCenter,
+              errorBuilder: (context, error, stackTrace) =>
+                  const SizedBox.shrink(),
+            ),
+          ],
         ),
       ),
     );

@@ -1,12 +1,16 @@
-// ignore_for_file: deprecated_member_use
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'donee_event_detail_screen.dart';
+import 'donee_create_event_screen.dart';
 
 class DoneeYourEventsScreen extends StatefulWidget {
-  const DoneeYourEventsScreen({super.key});
+  /// When [showCreateButton] is true an "+ Create Event" action appears in the
+  /// AppBar (used when embedded in the Donator home's Event tab).
+  const DoneeYourEventsScreen({super.key, this.showCreateButton = false});
+
+  final bool showCreateButton;
 
   @override
   State<DoneeYourEventsScreen> createState() => _DoneeYourEventsScreenState();
@@ -46,14 +50,35 @@ class _DoneeYourEventsScreenState extends State<DoneeYourEventsScreen> {
         title: const Text(
           'Your Events',
           style: TextStyle(
-            color: Color(0xFF24963F),
+            color: Color(0xFFF0A500),
             fontWeight: FontWeight.bold,
           ),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF24963F)),
+        iconTheme: const IconThemeData(color: Color(0xFFF0A500)),
       ),
+      floatingActionButton: widget.showCreateButton
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 88),
+              child: FloatingActionButton.extended(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const _CreateEventPage()),
+                ),
+                backgroundColor: const Color(0xFFB71C1C),
+                foregroundColor: Colors.white,
+                elevation: 4,
+                icon: const Icon(Icons.add_rounded),
+                label: const Text(
+                  'Create Event',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            )
+          : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: Container(
         height: MediaQuery.of(context).size.height,
         decoration: const BoxDecoration(
@@ -80,7 +105,12 @@ class _DoneeYourEventsScreenState extends State<DoneeYourEventsScreen> {
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: primaryGreen.withValues(alpha: 0.2),
+                      color: const Color.fromARGB(
+                        255,
+                        197,
+                        30,
+                        30,
+                      ).withValues(alpha: 0.2),
                       blurRadius: 16,
                       offset: const Offset(0, 8),
                     ),
@@ -212,18 +242,7 @@ class _DoneeYourEventsScreenState extends State<DoneeYourEventsScreen> {
                 ),
               ),
 
-              const SizedBox(height: 36),
-
-              // Events Header
-              const Text(
-                'Your Events',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: primaryGreen,
-                ),
-              ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 40),
 
               // Filter Pills
               SingleChildScrollView(
@@ -353,10 +372,12 @@ class _DoneeYourEventsScreenState extends State<DoneeYourEventsScreen> {
         margin: const EdgeInsets.only(right: 12),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? activeColor : Colors.white.withValues(alpha: 0.7),
+          color: isSelected
+              ? const Color(0xFFB71C1C)
+              : Colors.white.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isSelected ? activeColor : Colors.white,
+            color: isSelected ? const Color(0xFFB71C1C) : Colors.white,
             width: 1.5,
           ),
           boxShadow: [
@@ -370,7 +391,7 @@ class _DoneeYourEventsScreenState extends State<DoneeYourEventsScreen> {
         child: Text(
           title == 'All' ? 'All' : title[0].toUpperCase() + title.substring(1),
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black87,
+            color: isSelected ? Colors.white : const Color(0xFF5C4033),
             fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
             fontSize: 14,
           ),
@@ -390,19 +411,6 @@ class _DoneeYourEventsScreenState extends State<DoneeYourEventsScreen> {
     required IconData icon,
     required Color primaryGreen,
   }) {
-    Color statusColor;
-    switch (status.toLowerCase()) {
-      case 'active':
-      case 'approved':
-        statusColor = primaryGreen;
-        break;
-      case 'completed':
-        statusColor = Colors.blue;
-        break;
-      default:
-        statusColor = Colors.orange;
-    }
-
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -447,10 +455,16 @@ class _DoneeYourEventsScreenState extends State<DoneeYourEventsScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: primaryGreen.withValues(alpha: 0.1),
+                          color: const Color(
+                            0xFFF0A500,
+                          ).withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(icon, color: primaryGreen, size: 28),
+                        child: Icon(
+                          icon,
+                          color: const Color(0xFFF0A500),
+                          size: 28,
+                        ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -462,7 +476,7 @@ class _DoneeYourEventsScreenState extends State<DoneeYourEventsScreen> {
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,
-                                color: Colors.black87,
+                                color: Color(0xFF5C4033),
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -483,17 +497,19 @@ class _DoneeYourEventsScreenState extends State<DoneeYourEventsScreen> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: statusColor.withValues(alpha: 0.15),
+                          color: const Color(
+                            0xFFF0A500,
+                          ).withValues(alpha: 0.18),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           status.toLowerCase() == 'pending'
                               ? 'Waiting'
                               : status[0].toUpperCase() + status.substring(1),
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
-                            color: statusColor.withValues(alpha: 1.0),
+                            color: Color(0xFFF0A500),
                           ),
                         ),
                       ),
@@ -513,10 +529,10 @@ class _DoneeYourEventsScreenState extends State<DoneeYourEventsScreen> {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      Icon(
-                        Icons.monetization_on_rounded,
+                      const Icon(
+                        Icons.currency_rupee_rounded,
                         size: 20,
-                        color: primaryGreen,
+                        color: Color(0xFF24963F),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -525,7 +541,7 @@ class _DoneeYourEventsScreenState extends State<DoneeYourEventsScreen> {
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: Color(0xFF24963F),
                           ),
                         ),
                       ),
@@ -538,5 +554,19 @@ class _DoneeYourEventsScreenState extends State<DoneeYourEventsScreen> {
         ),
       ), // close GestureDetector child Container
     ); // close GestureDetector
+  }
+}
+
+/// A standalone page that wraps [DoneeCreateEventScreen] with no AppBar,
+/// navigated to when the user taps "+ Create Event" from the Your Events page.
+class _CreateEventPage extends StatelessWidget {
+  const _CreateEventPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      backgroundColor: Color(0xFFF6F8FD),
+      body: SafeArea(child: DoneeCreateEventScreen()),
+    );
   }
 }

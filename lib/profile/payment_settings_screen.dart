@@ -92,17 +92,17 @@ class _PaymentSettingsScreenState extends State<PaymentSettingsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFFB71C1C)),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text('Payment & Bank Settings',
-            style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w700, fontSize: 18)),
+            style: TextStyle(color: Color(0xFFB71C1C), fontWeight: FontWeight.w700, fontSize: 18)),
         centerTitle: true,
         actions: [
           TextButton(
             onPressed: _isSaving ? null : _save,
             child: _isSaving
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFB71C1C)))
                 : const Text('Save',
                     style: TextStyle(color: Color(0xFFB71C1C), fontWeight: FontWeight.w700, fontSize: 16)),
           ),
@@ -243,8 +243,8 @@ class _PaymentSettingsScreenState extends State<PaymentSettingsScreen> {
     return Padding(
       padding: const EdgeInsets.only(top: 20, bottom: 8, left: 4),
       child: Text(label,
-          style: TextStyle(
-              fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade600, letterSpacing: 0.5)),
+          style: const TextStyle(
+              fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFB71C1C), letterSpacing: 0.5)),
     );
   }
 
@@ -270,7 +270,7 @@ class _PaymentSettingsScreenState extends State<PaymentSettingsScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Row(
         children: [
-          Icon(icon, color: Colors.black54, size: 20),
+          Icon(icon, color: const Color(0xFFF0A500), size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: TextFormField(
@@ -285,7 +285,7 @@ class _PaymentSettingsScreenState extends State<PaymentSettingsScreen> {
                 hintText: hint,
                 hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
               ),
-              style: const TextStyle(fontSize: 15, color: Colors.black87),
+              style: const TextStyle(fontSize: 15, color: Color(0xFF5C4033)),
             ),
           ),
         ],

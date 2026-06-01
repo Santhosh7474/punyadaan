@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'donee_create_event_screen.dart';
 import 'donee_temple_tab.dart';
 import 'donee_your_events_screen.dart';
 import '../profile/donee_profile_screen.dart';
@@ -238,47 +237,6 @@ class _DoneeHomePageState extends State<DoneeHomePage> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         extendBody: true,
-        floatingActionButton: _currentNavIndex == 1
-            ? Padding(
-                padding: const EdgeInsets.only(bottom: 96),
-                child: FloatingActionButton.extended(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => Scaffold(
-                          backgroundColor: const Color(0xFFF6F8FD),
-                          appBar: AppBar(
-                            title: const Text(
-                              'Create Event',
-                              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20),
-                            ),
-                            backgroundColor: Colors.transparent,
-                            elevation: 0,
-                            foregroundColor: Colors.black87,
-                          ),
-                          body: Container(
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Color(0xFFF6F8FD), Color(0xFFE9F0E6)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                            ),
-                            child: const DoneeCreateEventScreen(),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                  backgroundColor: const Color(0xFF24963F),
-                  icon: const Icon(Icons.add_rounded, color: Colors.white),
-                  label: const Text('Create Event', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  elevation: 4,
-                ),
-              )
-            : null,
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         body: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -293,7 +251,7 @@ class _DoneeHomePageState extends State<DoneeHomePage> {
                 index: _currentNavIndex,
                 children: const [
                   DoneeTempleTab(),
-                  DoneeYourEventsScreen(),
+                  DoneeYourEventsScreen(showCreateButton: true),
                   DoneeProfileScreen(),
                 ],
               ),
@@ -386,13 +344,13 @@ class _BottomNavItem extends StatelessWidget {
           vertical: 10,
         ),
         decoration: BoxDecoration(
-          // Active pill: golden-yellow; inactive: transparent
-          color: isActive ? const Color(0xFFE8B000) : Colors.transparent,
+          // Active pill: Primary Gold; inactive: transparent
+          color: isActive ? const Color(0xFFF0A500) : Colors.transparent,
           borderRadius: BorderRadius.circular(30),
           boxShadow: isActive
               ? [
                   BoxShadow(
-                    color: const Color(0xFFE8B000).withValues(alpha: 0.45),
+                    color: const Color(0xFFF0A500).withValues(alpha: 0.45),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -402,7 +360,9 @@ class _BottomNavItem extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(isActive ? activeIcon : icon, color: Colors.white, size: 26),
+            Icon(isActive ? activeIcon : icon,
+                color: Colors.white,
+                size: 26),
             AnimatedSize(
               duration: const Duration(milliseconds: 350),
               curve: Curves.easeOutCubic,

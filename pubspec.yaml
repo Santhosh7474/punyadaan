@@ -54,6 +54,7 @@ dependencies:
   share_plus: ^10.1.4
   audioplayers: ^6.1.0
   firebase_messaging: ^15.2.5
+  image_cropper: ^9.0.0
 
 dev_dependencies:
   flutter_test:
@@ -75,10 +76,8 @@ flutter_launcher_icons:
 
 flutter_native_splash:
   color: "#ffffff"
-  image: assets/splash/splash_static.png
 
   android_12:
-    image: assets/splash/splash_static.png
     icon_background_color: "#ffffff"
 
   ios: true

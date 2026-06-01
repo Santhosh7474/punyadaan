@@ -23,6 +23,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _firstNameCtrl = TextEditingController();
   final _lastNameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
   final _locationCtrl = TextEditingController();
   final _aadharCtrl = TextEditingController();
   final _panCtrl = TextEditingController();
@@ -50,6 +51,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _firstNameCtrl.text = data['firstName'] ?? '';
       _lastNameCtrl.text = data['lastName'] ?? '';
       if (_emailCtrl.text.isEmpty) _emailCtrl.text = data['email'] ?? '';
+      _phoneCtrl.text = data['phone'] ?? '';
       _locationCtrl.text = data['location'] ?? '';
       _aadharCtrl.text = data['aadharNumber'] ?? '';
       _panCtrl.text = data['panNumber'] ?? '';
@@ -114,6 +116,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         'lastName': lastName,
         'name': fullName,
         'email': _emailCtrl.text.trim(),
+        'phone': _phoneCtrl.text.trim(),
         'location': _locationCtrl.text.trim(),
         'aadharNumber': _aadharCtrl.text.trim(),
         'panNumber': _panCtrl.text.trim().toUpperCase(),
@@ -140,6 +143,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _firstNameCtrl.dispose();
     _lastNameCtrl.dispose();
     _emailCtrl.dispose();
+    _phoneCtrl.dispose();
     _locationCtrl.dispose();
     _aadharCtrl.dispose();
     _panCtrl.dispose();
@@ -154,19 +158,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFFB71C1C)),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'Edit Profile',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w700, fontSize: 18),
+          style: TextStyle(color: Color(0xFFB71C1C), fontWeight: FontWeight.w700, fontSize: 18),
         ),
         centerTitle: true,
         actions: [
           TextButton(
             onPressed: _isSaving ? null : _saveProfile,
             child: _isSaving
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFB71C1C)))
                 : const Text('Save', style: TextStyle(color: Color(0xFFB71C1C), fontWeight: FontWeight.w700, fontSize: 16)),
           ),
         ],
@@ -208,6 +212,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     return null;
                   },
                 ),
+                _divider(),
+                _buildField(
+                  controller: _phoneCtrl,
+                  label: 'Phone Number',
+                  icon: Icons.phone_outlined,
+                  hint: 'Enter phone number',
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(10)],
+                ),
               ]),
 
               _sectionLabel('Location'),
@@ -217,7 +230,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Icon(Icons.location_on_outlined, color: Colors.black54, size: 20),
+                      const Icon(Icons.location_on_outlined, color: Color(0xFFF0A500), size: 20),
                       const SizedBox(width: 12),
                       Expanded(
                         child: TextFormField(
@@ -229,7 +242,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             hintText: 'Enter your address',
                             hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
                           ),
-                          style: const TextStyle(fontSize: 15, color: Colors.black87),
+                          style: const TextStyle(fontSize: 15, color: Color(0xFF5C4033)),
                           maxLines: 2,
                         ),
                       ),
@@ -305,21 +318,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Row(
                     children: [
-                      const Icon(Icons.notifications_outlined, color: Colors.black87, size: 22),
+                      const Icon(Icons.notifications_outlined, color: Color(0xFFF0A500), size: 22),
                       const SizedBox(width: 12),
                       const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Notifications', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.black87)),
+                            Text('Notifications', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF5C4033))),
                             SizedBox(height: 2),
-                            Text('Receive alerts & updates', style: TextStyle(fontSize: 12, color: Colors.black45)),
+                            Text('Receive alerts & updates', style: TextStyle(fontSize: 12, color: Color(0xFF5C4033))),
                           ],
                         ),
                       ),
                       Switch(
                         value: _notificationsEnabled,
-                        activeThumbColor: const Color(0xFFB71C1C),
+                        activeTrackColor: const Color(0xFFB71C1C),
+                        activeThumbColor: Colors.white,
                         onChanged: (val) async {
                           setState(() => _notificationsEnabled = val);
                           if (val) {
@@ -337,21 +351,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Row(
                     children: [
-                      const Icon(Icons.volume_up_rounded, color: Colors.black87, size: 22),
+                      const Icon(Icons.volume_up_rounded, color: Color(0xFFF0A500), size: 22),
                       const SizedBox(width: 12),
                       const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Bell Sound', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.black87)),
+                            Text('Bell Sound', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF5C4033))),
                             SizedBox(height: 2),
-                            Text('Play sound when notification arrives', style: TextStyle(fontSize: 12, color: Colors.black45)),
+                            Text('Play sound when notification arrives', style: TextStyle(fontSize: 12, color: Color(0xFF5C4033))),
                           ],
                         ),
                       ),
                       Switch(
                         value: _bellSoundEnabled,
-                        activeThumbColor: const Color(0xFFB71C1C),
+                        activeTrackColor: const Color(0xFFB71C1C),
+                        activeThumbColor: Colors.white,
                         onChanged: (val) async {
                           setState(() => _bellSoundEnabled = val);
                           if (val) await NotificationSoundService.playDirect();
@@ -391,7 +406,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget _sectionLabel(String label) {
     return Padding(
       padding: const EdgeInsets.only(top: 20, bottom: 8, left: 4),
-      child: Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade600, letterSpacing: 0.5)),
+      child: Text(label,
+          style: const TextStyle(
+              fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFFB71C1C), letterSpacing: 0.5)),
     );
   }
 
@@ -419,7 +436,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(icon, color: Colors.black54, size: 20),
+          Icon(icon, color: const Color(0xFFF0A500), size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: TextFormField(
@@ -435,7 +452,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 hintText: hint,
                 hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
               ),
-              style: const TextStyle(fontSize: 15, color: Colors.black87),
+              style: const TextStyle(fontSize: 15, color: Color(0xFF5C4033)),
             ),
           ),
         ],

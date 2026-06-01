@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'deactivation_service.dart';
 import 'donee_edit_profile_screen.dart';
 
@@ -95,15 +96,15 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
                             color: Colors.red.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 32),
+                          child: const Icon(Icons.logout_rounded, color: Color(0xFFB71C1C), size: 32),
                         ),
                         const SizedBox(height: 16),
                         const Text(
-                          'Sign Out?',
+                          'Log Out?',
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w800,
-                            color: Colors.black87,
+                            color: Color(0xFFB71C1C),
                             letterSpacing: -0.5,
                           ),
                         ),
@@ -113,7 +114,7 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 15,
-                            color: Colors.black54,
+                            color: Color(0xFF5C4033),
                             height: 1.4,
                           ),
                         ),
@@ -127,7 +128,7 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
                                   padding: const EdgeInsets.symmetric(vertical: 14),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 ),
-                                child: const Text('Cancel', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black54)),
+                                child: const Text('Cancel', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF5C4033))),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -142,13 +143,13 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.redAccent,
+                                  backgroundColor: const Color(0xFFB71C1C),
                                   foregroundColor: Colors.white,
                                   padding: const EdgeInsets.symmetric(vertical: 14),
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 ),
-                                child: const Text('Sign Out', style: TextStyle(fontWeight: FontWeight.w700)),
+                                child: const Text('Log Out', style: TextStyle(fontWeight: FontWeight.w700)),
                               ),
                             ),
                           ],
@@ -209,12 +210,12 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
                         Container(
                           padding: const EdgeInsets.all(18),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFF6B35).withValues(alpha: 0.12),
+                            color: const Color(0xFFB71C1C).withValues(alpha: 0.12),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
                             Icons.person_off_rounded,
-                            color: Color(0xFFFF6B35),
+                            color: Color(0xFFB71C1C),
                             size: 36,
                           ),
                         ),
@@ -224,7 +225,7 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w800,
-                            color: Colors.black87,
+                            color: Color(0xFFB71C1C),
                             letterSpacing: -0.5,
                           ),
                         ),
@@ -234,7 +235,7 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.black54,
+                            color: Color(0xFF5C4033),
                             height: 1.55,
                           ),
                         ),
@@ -243,23 +244,23 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
                           margin: const EdgeInsets.symmetric(vertical: 12),
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFF6B35).withValues(alpha: 0.08),
+                            color: const Color(0xFFB71C1C).withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: const Color(0xFFFF6B35).withValues(alpha: 0.25),
+                              color: const Color(0xFFB71C1C).withValues(alpha: 0.4),
                             ),
                           ),
                           child: const Row(
                             children: [
                               Icon(Icons.info_outline_rounded,
-                                  color: Color(0xFFFF6B35), size: 16),
+                                  color: Color(0xFFB71C1C), size: 16),
                               SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   'This action sends a request — your account remains active until admin approval.',
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: Color(0xFFCC4400),
+                                    color: Color(0xFFB71C1C),
                                     height: 1.4,
                                   ),
                                 ),
@@ -281,7 +282,7 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
                                 child: const Text('Cancel',
                                     style: TextStyle(
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.black54)),
+                                        color: Color(0xFF5C4033))),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -307,7 +308,7 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
                                                 content: Text(
                                                     'Deactivation request sent to admin.'),
                                                 backgroundColor:
-                                                    Color(0xFFFF6B35),
+                                                    Color(0xFFB71C1C),
                                               ));
                                             }
                                           } catch (e) {
@@ -323,7 +324,7 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
                                           }
                                         },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFFF6B35),
+                                    backgroundColor: const Color(0xFFB71C1C),
                                     foregroundColor: Colors.white,
                                     padding: const EdgeInsets.symmetric(vertical: 14),
                                     elevation: 0,
@@ -360,13 +361,13 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
       return const SizedBox.shrink();
     }
     final bool isApproved = _deactivationStatus == 'approved';
-    final color = isApproved ? const Color(0xFFD32F2F) : const Color(0xFFFF6B35);
+    final color = isApproved ? const Color(0xFFD32F2F) : const Color(0xFFB71C1C);
     final bgColor = isApproved
         ? const Color(0xFFD32F2F).withValues(alpha: 0.08)
-        : const Color(0xFFFF6B35).withValues(alpha: 0.08);
+        : const Color(0xFFB71C1C).withValues(alpha: 0.08);
     final borderColor = isApproved
         ? const Color(0xFFD32F2F).withValues(alpha: 0.3)
-        : const Color(0xFFFF6B35).withValues(alpha: 0.3);
+        : const Color(0xFFB71C1C).withValues(alpha: 0.3);
     String message;
     IconData icon;
     if (isApproved && _deactivateAt != null) {
@@ -436,12 +437,32 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
     try {
       final XFile? image = await _picker.pickImage(
         source: ImageSource.gallery,
-        maxWidth: 800,
-        maxHeight: 800,
+        maxWidth: 1080,
+        maxHeight: 1080,
         imageQuality: 85,
       );
-      
+
       if (image == null) return;
+
+      // Crop step — user can crop/rotate before upload
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: image.path,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Crop Profile Photo',
+            toolbarColor: const Color(0xFFB71C1C),
+            toolbarWidgetColor: Colors.white,
+            activeControlsWidgetColor: const Color(0xFFF0A500),
+            initAspectRatio: CropAspectRatioPreset.square,
+            lockAspectRatio: false,
+          ),
+          IOSUiSettings(
+            title: 'Crop Profile Photo',
+            aspectRatioLockEnabled: false,
+          ),
+        ],
+      );
+      if (croppedFile == null) return; // user cancelled crop
 
       setState(() {
         _isUploading = true;
@@ -453,8 +474,8 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
         return;
       }
 
-      final bytes = await image.readAsBytes();
-      
+      final bytes = await croppedFile.readAsBytes();
+
       if (bytes.isEmpty) {
         throw Exception("Selected image is empty.");
       }
@@ -508,6 +529,73 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
     }
   }
 
+  void _showNotificationsPanel(BuildContext context) {
+    bool pushEnabled = true;
+    bool bellEnabled = true;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModal) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40, height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Notifications',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFFB71C1C),
+                ),
+              ),
+              const SizedBox(height: 20),
+              SwitchListTile(
+                title: const Text('Push Notifications',
+                    style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF5C4033))),
+                subtitle: const Text('Receive donation & event updates',
+                    style: TextStyle(fontSize: 12, color: Color(0xFF5C4033))),
+                value: pushEnabled,
+                activeTrackColor: const Color(0xFFB71C1C),
+                secondary: const Icon(Icons.notifications_outlined, color: Color(0xFFF0A500)),
+                onChanged: (v) => setModal(() => pushEnabled = v),
+                contentPadding: EdgeInsets.zero,
+              ),
+              const Divider(height: 1),
+              SwitchListTile(
+                title: const Text('Bell Sound',
+                    style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF5C4033))),
+                subtitle: const Text('Play sound when a notification arrives',
+                    style: TextStyle(fontSize: 12, color: Color(0xFF5C4033))),
+                value: bellEnabled,
+                activeTrackColor: const Color(0xFFB71C1C),
+                secondary: const Icon(Icons.volume_up_rounded, color: Color(0xFFF0A500)),
+                onChanged: (v) => setModal(() => bellEnabled = v),
+                contentPadding: EdgeInsets.zero,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   void _showProfileOptions(BuildContext context, String? photoUrl) {
     showModalBottomSheet(
       context: context,
@@ -523,16 +611,16 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
               children: [
                 if (photoUrl != null)
                   ListTile(
-                    leading: const Icon(Icons.person_search_rounded, color: Colors.black87),
-                    title: const Text('View profile', style: TextStyle(fontWeight: FontWeight.w500)),
+                    leading: const Icon(Icons.person_search_rounded, color: Color(0xFFF0A500)),
+                    title: const Text('View profile', style: TextStyle(fontWeight: FontWeight.w500, color: Color(0xFF5C4033))),
                     onTap: () {
                       Navigator.pop(context);
                       _viewProfilePicture(context, photoUrl);
                     },
                   ),
                 ListTile(
-                  leading: const Icon(Icons.photo_library_rounded, color: Colors.black87),
-                  title: const Text('Upload from gallery', style: TextStyle(fontWeight: FontWeight.w500)),
+                  leading: const Icon(Icons.photo_library_rounded, color: Color(0xFFF0A500)),
+                  title: const Text('Upload from gallery', style: TextStyle(fontWeight: FontWeight.w500, color: Color(0xFF5C4033))),
                   onTap: () {
                     Navigator.pop(context);
                     _pickAndUploadImage();
@@ -540,8 +628,8 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
                 ),
                 if (photoUrl != null)
                   ListTile(
-                    leading: const Icon(Icons.delete_outline_rounded, color: Colors.red),
-                    title: const Text('Remove photo', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.red)),
+                    leading: const Icon(Icons.delete_outline_rounded, color: Color(0xFFB71C1C)),
+                    title: const Text('Remove photo', style: TextStyle(fontWeight: FontWeight.w500, color: Color(0xFFB71C1C))),
                     onTap: () {
                       Navigator.pop(context);
                       _removePhoto();
@@ -716,8 +804,8 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
                   'Settings',
                   style: TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFFB71C1C),
                   ),
                 ),
               ),
@@ -741,6 +829,8 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
                     _ProfileMenuItem(
                       icon: Icons.edit_rounded,
                       title: 'Edit Profile',
+                      iconColor: const Color(0xFFF0A500),
+                      textColor: const Color(0xFF5C4033),
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -749,28 +839,45 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
                       ),
                     ),
                     _ProfileMenuItem(
+                      icon: Icons.notifications_outlined,
+                      title: 'Notifications',
+                      iconColor: const Color(0xFFF0A500),
+                      textColor: const Color(0xFF5C4033),
+                      onTap: () => _showNotificationsPanel(context),
+                    ),
+                    _ProfileMenuItem(
                       icon: Icons.contrast_rounded,
                       title: 'Theme',
+                      iconColor: const Color(0xFFF0A500),
+                      textColor: const Color(0xFF5C4033),
                       onTap: () {},
                     ),
                     _ProfileMenuItem(
                       icon: Icons.policy_outlined,
                       title: 'Policies',
+                      iconColor: const Color(0xFFF0A500),
+                      textColor: const Color(0xFF5C4033),
                       onTap: () {},
                     ),
                     _ProfileMenuItem(
                       icon: Icons.article_outlined,
                       title: 'Terms and Conditions',
+                      iconColor: const Color(0xFFF0A500),
+                      textColor: const Color(0xFF5C4033),
                       onTap: () {},
                     ),
                     _ProfileMenuItem(
                       icon: Icons.info_outline_rounded,
                       title: 'About Us',
+                      iconColor: const Color(0xFFF0A500),
+                      textColor: const Color(0xFF5C4033),
                       onTap: () {},
                     ),
                     _ProfileMenuItem(
                       icon: Icons.help_outline_rounded,
                       title: 'Support / Help',
+                      iconColor: const Color(0xFFF0A500),
+                      textColor: const Color(0xFF5C4033),
                       onTap: () {},
                     ),
                     // Deactivate Account — shown only if not already requested
@@ -789,18 +896,18 @@ class _DoneeProfileScreenState extends State<DoneeProfileScreen> {
                 height: 56,
                 child: ElevatedButton.icon(
                   onPressed: () => _confirmSignOut(context),
-                  icon: const Icon(Icons.logout_rounded, color: Colors.black87),
+                  icon: const Icon(Icons.logout_rounded, color: Colors.white),
                   label: const Text(
                     'Log Out',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: Colors.white,
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFDC5C5), // Soft red/pink log out
-                    foregroundColor: Colors.black87,
+                    backgroundColor: const Color(0xFFB71C1C),
+                    foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -820,11 +927,15 @@ class _ProfileMenuItem extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.onTap,
+    this.iconColor = const Color(0xFFF0A500),
+    this.textColor = const Color(0xFF5C4033),
   });
 
   final IconData icon;
   final String title;
   final VoidCallback onTap;
+  final Color iconColor;
+  final Color textColor;
 
   @override
   Widget build(BuildContext context) {
@@ -834,22 +945,22 @@ class _ProfileMenuItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Row(
           children: [
-            Icon(icon, size: 22, color: Colors.black87),
+            Icon(icon, size: 22, color: iconColor),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black87,
+                  color: textColor,
                 ),
               ),
             ),
-            const Icon(
+            Icon(
               Icons.arrow_forward_ios_rounded,
               size: 16,
-              color: Colors.black87,
+              color: textColor,
             ),
           ],
         ),
@@ -874,11 +985,11 @@ class _DeactivateMenuItem extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: const Color(0xFFFF6B35).withValues(alpha: 0.1),
+                color: const Color(0xFFB71C1C).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(Icons.person_off_rounded,
-                  size: 18, color: Color(0xFFFF6B35)),
+                  size: 18, color: Color(0xFFB71C1C)),
             ),
             const SizedBox(width: 14),
             const Expanded(
@@ -887,12 +998,12 @@ class _DeactivateMenuItem extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFFFF6B35),
+                  color: Color(0xFFB71C1C),
                 ),
               ),
             ),
             const Icon(Icons.arrow_forward_ios_rounded,
-                size: 16, color: Color(0xFFFF6B35)),
+                size: 16, color: Color(0xFFB71C1C)),
           ],
         ),
       ),

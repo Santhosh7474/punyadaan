@@ -238,7 +238,7 @@ class _DoneeEditProfileScreenState extends State<DoneeEditProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Profile saved successfully'),
-            backgroundColor: _primaryGreen,
+            backgroundColor: Color(0xFFB71C1C),
           ),
         );
         Navigator.pop(context);
@@ -266,10 +266,13 @@ class _DoneeEditProfileScreenState extends State<DoneeEditProfileScreen> {
       backgroundColor: const Color(0xFFF6F8FD),
       appBar: AppBar(
         title: const Text('Edit Profile',
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20)),
+            style: TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 20,
+                color: Color(0xFFB71C1C))),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        foregroundColor: Colors.black87,
+        foregroundColor: const Color(0xFFB71C1C),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => Navigator.pop(context),
@@ -412,10 +415,10 @@ class _DoneeEditProfileScreenState extends State<DoneeEditProfileScreen> {
                       child: ElevatedButton(
                         onPressed: _saving ? null : _saveAll,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _primaryGreen,
+                          backgroundColor: _primaryRed,
                           foregroundColor: Colors.white,
                           elevation: 6,
-                          shadowColor: _primaryGreen.withValues(alpha: 0.4),
+                          shadowColor: _primaryRed.withValues(alpha: 0.4),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -447,17 +450,17 @@ class _DoneeEditProfileScreenState extends State<DoneeEditProfileScreen> {
           height: 20,
           margin: const EdgeInsets.only(right: 10),
           decoration: BoxDecoration(
-            color: _primaryRed,
+            color: const Color(0xFFF0A500),
             borderRadius: BorderRadius.circular(4),
           ),
         ),
-        Icon(icon, size: 20, color: _primaryRed),
+        Icon(icon, size: 20, color: const Color(0xFF5C4033)),
         const SizedBox(width: 8),
         Text(title,
             style: const TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
-                color: Colors.black87)),
+                color: Color(0xFFB71C1C))),
       ],
     );
   }
@@ -509,14 +512,14 @@ class _DoneeEditProfileScreenState extends State<DoneeEditProfileScreen> {
         inputFormatters: inputFormatters,
         obscureText: obscureText,
         textCapitalization: textCapitalization,
-        style: const TextStyle(fontSize: 15, color: Colors.black87),
+        style: const TextStyle(fontSize: 15, color: Color(0xFF5C4033)),
         decoration: InputDecoration(
           border: InputBorder.none,
           labelText: label,
           hintText: hint,
-          icon: Icon(icon, color: _primaryRed, size: 20),
+          icon: Icon(icon, color: const Color(0xFFF0A500), size: 20),
           labelStyle:
-              TextStyle(color: Colors.grey.shade600, fontSize: 13),
+              const TextStyle(color: Color(0xFF5C4033), fontSize: 13),
           hintStyle:
               TextStyle(color: Colors.grey.shade400, fontSize: 13),
         ),
@@ -647,10 +650,10 @@ class _DoneeEditProfileScreenState extends State<DoneeEditProfileScreen> {
                     border: InputBorder.none,
                     labelText: 'Your Location',
                     hintText: 'e.g. Hyderabad, Telangana',
-                    icon:
-                        const Icon(Icons.location_on_outlined, color: _primaryRed, size: 20),
-                    labelStyle: TextStyle(
-                        color: Colors.grey.shade600, fontSize: 13),
+                    icon: const Icon(Icons.location_on_outlined,
+                        color: Color(0xFFF0A500), size: 20),
+                    labelStyle: const TextStyle(
+                        color: Color(0xFF5C4033), fontSize: 13),
                     hintStyle: TextStyle(
                         color: Colors.grey.shade400, fontSize: 13),
                   ),
@@ -663,12 +666,12 @@ class _DoneeEditProfileScreenState extends State<DoneeEditProfileScreen> {
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: _primaryRed),
+                            strokeWidth: 2, color: Color(0xFFF0A500)),
                       )
                     : Tooltip(
                         message: 'Auto-detect location',
-                        child: Icon(Icons.my_location_rounded,
-                            color: _primaryRed, size: 22),
+                        child: const Icon(Icons.my_location_rounded,
+                            color: Color(0xFFF0A500), size: 22),
                       ),
               ),
             ],
@@ -705,7 +708,7 @@ class _DoneeEditProfileScreenState extends State<DoneeEditProfileScreen> {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: _notificationsEnabled
-                      ? _primaryGreen.withValues(alpha: 0.1)
+                      ? _primaryRed.withValues(alpha: 0.1)
                       : Colors.grey.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -714,7 +717,7 @@ class _DoneeEditProfileScreenState extends State<DoneeEditProfileScreen> {
                       ? Icons.notifications_active_rounded
                       : Icons.notifications_off_outlined,
                   color:
-                      _notificationsEnabled ? _primaryGreen : Colors.grey,
+                      _notificationsEnabled ? const Color(0xFFF0A500) : Colors.grey,
                   size: 22,
                 ),
               ),
@@ -725,7 +728,8 @@ class _DoneeEditProfileScreenState extends State<DoneeEditProfileScreen> {
                   children: [
                     const Text('Push Notifications',
                         style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w700)),
+                            fontSize: 15, fontWeight: FontWeight.w700,
+                            color: Color(0xFF5C4033))),
                     Text(
                       _notificationsEnabled ? 'Bell sounds on' : 'Muted',
                       style: TextStyle(
@@ -736,8 +740,7 @@ class _DoneeEditProfileScreenState extends State<DoneeEditProfileScreen> {
               ),
               Switch(
                 value: _notificationsEnabled,
-                activeThumbColor: _primaryGreen,
-                activeTrackColor: _primaryGreen.withValues(alpha: 0.3),
+                activeTrackColor: _primaryRed,
                 onChanged: (val) async {
                   setState(() => _notificationsEnabled = val);
                   if (val) {
@@ -779,7 +782,7 @@ class _DoneeEditProfileScreenState extends State<DoneeEditProfileScreen> {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: _bellSoundEnabled
-                      ? _primaryGreen.withValues(alpha: 0.1)
+                      ? _primaryRed.withValues(alpha: 0.1)
                       : Colors.grey.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -787,7 +790,7 @@ class _DoneeEditProfileScreenState extends State<DoneeEditProfileScreen> {
                   _bellSoundEnabled
                       ? Icons.volume_up_rounded
                       : Icons.volume_off_rounded,
-                  color: _bellSoundEnabled ? _primaryGreen : Colors.grey,
+                  color: _bellSoundEnabled ? const Color(0xFFF0A500) : Colors.grey,
                   size: 22,
                 ),
               ),
@@ -798,7 +801,8 @@ class _DoneeEditProfileScreenState extends State<DoneeEditProfileScreen> {
                   children: [
                     const Text('Bell Sound',
                         style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w700)),
+                            fontSize: 15, fontWeight: FontWeight.w700,
+                            color: Color(0xFF5C4033))),
                     Text(
                       _bellSoundEnabled ? 'Plays on notification' : 'Silent',
                       style: TextStyle(
@@ -809,8 +813,7 @@ class _DoneeEditProfileScreenState extends State<DoneeEditProfileScreen> {
               ),
               Switch(
                 value: _bellSoundEnabled,
-                activeThumbColor: _primaryGreen,
-                activeTrackColor: _primaryGreen.withValues(alpha: 0.3),
+                activeTrackColor: _primaryRed,
                 onChanged: (val) async {
                   setState(() => _bellSoundEnabled = val);
                   if (val) await NotificationSoundService.playDirect();

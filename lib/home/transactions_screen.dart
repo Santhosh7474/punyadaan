@@ -163,13 +163,13 @@ class TransactionsScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w900,
-                      color: Colors.black87,
+                      color: Color(0xFFB71C1C),
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
+                  const Text(
                     'Your donation history',
-                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                    style: TextStyle(fontSize: 14, color: Color(0xFF5C4033)),
                   ),
                 ],
               ),
@@ -213,8 +213,8 @@ class TransactionsScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                primaryGreen.withValues(alpha: 0.85),
-                                const Color(0xFF1E7A33).withValues(alpha: 0.85),
+                                const Color(0xFFB71C1C).withValues(alpha: 0.85),
+                                const Color(0xFF7B0000).withValues(alpha: 0.85),
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
@@ -320,7 +320,7 @@ class TransactionsScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: Colors.black87,
+                  color: Color(0xFFB71C1C),
                 ),
               ),
             ),
@@ -450,17 +450,17 @@ class TransactionsScreen extends StatelessWidget {
                                       Container(
                                         width: 48,
                                         height: 48,
-                                        decoration: BoxDecoration(
-                                          color: primaryGreen.withValues(
+                                         decoration: BoxDecoration(
+                                          color: const Color(0xFFF0A500).withValues(
                                             alpha: 0.12,
                                           ),
-                                          borderRadius: BorderRadius.circular(
+                                           borderRadius: BorderRadius.circular(
                                             14,
                                           ),
                                         ),
                                         child: const Icon(
                                           Icons.volunteer_activism_rounded,
-                                          color: primaryGreen,
+                                          color: Color(0xFFF0A500),
                                           size: 24,
                                         ),
                                       ),
@@ -476,7 +476,7 @@ class TransactionsScreen extends StatelessWidget {
                                               style: const TextStyle(
                                                 fontSize: 15,
                                                 fontWeight: FontWeight.w700,
-                                                color: Colors.black87,
+                                                color: Color(0xFF5C4033),
                                               ),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
@@ -498,7 +498,7 @@ class TransactionsScreen extends StatelessWidget {
                                             CrossAxisAlignment.end,
                                         children: [
                                           Text(
-                                            '-₹${amount.toStringAsFixed(0)}',
+                                            '₹${amount.toStringAsFixed(0)}',
                                             style: const TextStyle(
                                               fontSize: 17,
                                               fontWeight: FontWeight.w800,
@@ -543,10 +543,10 @@ class TransactionsScreen extends StatelessWidget {
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       // Share button
-                                      _ActionChip(
+                                       _ActionChip(
                                         icon: Icons.share_rounded,
                                         label: 'Share',
-                                        color: Colors.blue,
+                                        color: const Color(0xFFF0A500),
                                         onTap: (ctx) => _shareReceipt(
                                           ctx,
                                           eventTitle: eventTitle,
@@ -557,10 +557,10 @@ class TransactionsScreen extends StatelessWidget {
                                       ),
                                       const SizedBox(width: 8),
                                       // Print button
-                                      _ActionChip(
+                                       _ActionChip(
                                         icon: Icons.print_rounded,
                                         label: 'Print',
-                                        color: Colors.orange,
+                                        color: const Color(0xFFF0A500),
                                         onTap: (ctx) => _showReceiptDialog(
                                           ctx,
                                           eventTitle: eventTitle,

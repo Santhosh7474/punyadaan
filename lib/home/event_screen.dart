@@ -11,7 +11,13 @@ import 'package:image_picker/image_picker.dart';
 import 'donee_your_events_screen.dart';
 
 class EventScreen extends StatefulWidget {
-  const EventScreen({super.key});
+  /// Optional callback for the "Your Events" pill.
+  /// When null the pill pushes [DoneeYourEventsScreen] (default behaviour).
+  /// When provided (e.g. from [_CreateEventPage]) the callback is invoked
+  /// instead — allowing the caller to simply pop back.
+  const EventScreen({super.key, this.onYourEventsTap});
+
+  final VoidCallback? onYourEventsTap;
 
   @override
   State<EventScreen> createState() => _EventScreenState();
@@ -26,7 +32,6 @@ class _EventScreenState extends State<EventScreen> {
   File? _selectedImage;
 
   final ImagePicker _picker = ImagePicker();
-  final List<String> _categories = ['Temple', 'Gaushala', 'Charity', 'Kanyadaan'];
 
   @override
   void dispose() {
@@ -78,38 +83,78 @@ class _EventScreenState extends State<EventScreen> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
-                    color: primaryGreen,
+                    color: Color(0xFFB71C1C),
                   ),
                 ),
                 ElevatedButton.icon(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const DoneeYourEventsScreen()),
-                    );
+                    if (widget.onYourEventsTap != null) {
+                      widget.onYourEventsTap!();
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const DoneeYourEventsScreen()),
+                      );
+                    }
                   },
                   icon: const Icon(Icons.list_alt_rounded, size: 18),
-                  label: const Text('Your Events', style: TextStyle(fontWeight: FontWeight.bold)),
+                  label: const Text('Your Events',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryGreen.withValues(alpha: 0.1),
-                    foregroundColor: primaryGreen,
+                    backgroundColor:
+                        const Color(0xFFB71C1C).withValues(alpha: 0.1),
+                    foregroundColor: const Color(0xFFB71C1C),
                     elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            Text(
+            const Text(
               'Submit a request for funds or assistance',
-              style: TextStyle(
-                fontSize: 15,
-                color: Colors.grey.shade700,
-              ),
+              style: TextStyle(fontSize: 15, color: Color(0xFF5C4033)),
             ),
             const SizedBox(height: 24),
 
-            // Image Upload Section (Glassmorphic)
+            _buildGlassyTextField(
+              controller: _titleController,
+              label: 'Request Title',
+              icon: Icons.title_rounded,
+              hint: 'e.g. Temple Renovation',
+            ),
+            const SizedBox(height: 16),
+
+            _buildGlassyTextField(
+              controller: _locationController,
+              label: 'Location',
+              icon: Icons.location_on_rounded,
+              hint: 'e.g. Jubilee Hills, Hyderabad',
+            ),
+            const SizedBox(height: 16),
+
+            _buildGlassyTextField(
+              controller: _amountController,
+              label: 'Target Amount (₹)',
+              icon: Icons.currency_rupee_rounded,
+              hint: 'e.g. 50000',
+              keyboardType: TextInputType.number,
+            ),
+
+            const SizedBox(height: 16),
+            _buildGlassyTextField(
+              controller: _descController,
+              label: 'Description',
+              icon: Icons.description_rounded,
+              hint: 'Describe why you need these funds...',
+              maxLines: 4,
+            ),
+
+            const SizedBox(height: 24),
+
+            // Image Upload Section (last step before submit)
             GestureDetector(
               onTap: _pickImage,
               child: Container(
@@ -150,15 +195,15 @@ class _EventScreenState extends State<EventScreen> {
                                 ),
                               ],
                             )
-                          : Column(
+                          : const Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.add_photo_alternate_rounded, size: 48, color: primaryGreen.withValues(alpha: 0.7)),
-                                const SizedBox(height: 12),
+                                Icon(Icons.add_photo_alternate_rounded, size: 48, color: Color(0xFFF0A500)),
+                                SizedBox(height: 12),
                                 Text(
                                   'Tap to upload event image',
                                   style: TextStyle(
-                                    color: Colors.grey.shade700,
+                                    color: Color(0xFF5C4033),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -168,49 +213,6 @@ class _EventScreenState extends State<EventScreen> {
                   ),
                 ),
               ),
-            ),
-
-            const SizedBox(height: 24),
-
-            _buildGlassyTextField(
-              controller: _titleController,
-              label: 'Request Title',
-              icon: Icons.title_rounded,
-              hint: 'e.g. Temple Renovation',
-              accentColor: primaryGreen,
-            ),
-            const SizedBox(height: 16),
-
-            _buildGlassyTextField(
-              controller: _locationController,
-              label: 'Location',
-              icon: Icons.location_on_rounded,
-              hint: 'e.g. Jubilee Hills, Hyderabad',
-              accentColor: primaryGreen,
-            ),
-            const SizedBox(height: 16),
-
-            // Dropdown Category
-            _buildGlassyDropdown(accentColor: primaryGreen),
-
-            const SizedBox(height: 16),
-            _buildGlassyTextField(
-              controller: _amountController,
-              label: 'Target Amount (₹)',
-              icon: Icons.currency_rupee_rounded,
-              hint: 'e.g. 50000',
-              keyboardType: TextInputType.number,
-              accentColor: primaryGreen,
-            ),
-
-            const SizedBox(height: 16),
-            _buildGlassyTextField(
-              controller: _descController,
-              label: 'Description',
-              icon: Icons.description_rounded,
-              hint: 'Describe why you need these funds...',
-              maxLines: 4,
-              accentColor: primaryGreen,
             ),
 
             const SizedBox(height: 32),
@@ -310,10 +312,10 @@ class _EventScreenState extends State<EventScreen> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryGreen,
+                  backgroundColor: const Color(0xFFB71C1C),
                   foregroundColor: Colors.white,
                   elevation: 8,
-                  shadowColor: primaryGreen.withValues(alpha: 0.5),
+                  shadowColor: const Color(0xFFB71C1C).withValues(alpha: 0.5),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -338,7 +340,6 @@ class _EventScreenState extends State<EventScreen> {
     required TextEditingController controller,
     required String label,
     required IconData icon,
-    required Color accentColor,
     String? hint,
     int maxLines = 1,
     TextInputType? keyboardType,
@@ -372,13 +373,13 @@ class _EventScreenState extends State<EventScreen> {
               controller: controller,
               maxLines: maxLines,
               keyboardType: keyboardType,
-              style: const TextStyle(fontSize: 16, color: Colors.black87),
+              style: const TextStyle(fontSize: 16, color: Color(0xFF5C4033)),
               decoration: InputDecoration(
                 border: InputBorder.none,
                 labelText: label,
                 hintText: hint,
-                icon: Icon(icon, color: accentColor),
-                labelStyle: TextStyle(color: Colors.grey.shade700),
+                icon: Icon(icon, color: const Color(0xFFF0A500)),
+                labelStyle: const TextStyle(color: Color(0xFF5C4033)),
                 hintStyle: TextStyle(color: Colors.grey.shade500),
               ),
             ),
@@ -387,67 +388,4 @@ class _EventScreenState extends State<EventScreen> {
       ),
     );
   }
-
-  Widget _buildGlassyDropdown({required Color accentColor}) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.6),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.5),
-                width: 1.5,
-              ),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: [
-                Icon(Icons.category_rounded, color: accentColor),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: _selectedCategory,
-                      isExpanded: true,
-                      dropdownColor: Colors.white.withValues(alpha: 0.95),
-                      icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.black54),
-                      style: const TextStyle(fontSize: 16, color: Colors.black87, fontWeight: FontWeight.w500),
-                      items: _categories.map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        if (newValue != null) {
-                          setState(() {
-                            _selectedCategory = newValue;
-                          });
-                        }
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
-

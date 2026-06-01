@@ -18,10 +18,11 @@ class DoneeRegisterTempleScreen extends StatefulWidget {
       _DoneeRegisterTempleScreenState();
 }
 
-class _DoneeRegisterTempleScreenState
-    extends State<DoneeRegisterTempleScreen> {
+class _DoneeRegisterTempleScreenState extends State<DoneeRegisterTempleScreen> {
   // ── Category ─────────────────────────────────────────────────────
   String? _selectedCategory;
+  // Tracks whether the user has attempted to submit (enables error highlighting)
+  bool _hasAttemptedSubmit = false;
 
   static const List<String> _categories = [
     'Religious Place',
@@ -75,9 +76,9 @@ class _DoneeRegisterTempleScreenState
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to pick image: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to pick image: $e')));
       }
     }
   }
@@ -98,13 +99,17 @@ class _DoneeRegisterTempleScreenState
       }
 
       final pos = await Geolocator.getCurrentPosition();
-      final placemarks =
-          await placemarkFromCoordinates(pos.latitude, pos.longitude);
+      final placemarks = await placemarkFromCoordinates(
+        pos.latitude,
+        pos.longitude,
+      );
       if (placemarks.isNotEmpty) {
         final p = placemarks.first;
-        final parts = [p.subLocality, p.locality, p.administrativeArea]
-            .where((s) => s != null && s.isNotEmpty)
-            .join(', ');
+        final parts = [
+          p.subLocality,
+          p.locality,
+          p.administrativeArea,
+        ].where((s) => s != null && s.isNotEmpty).join(', ');
         setState(() => _locationController.text = parts);
       }
     } catch (e) {
@@ -119,22 +124,25 @@ class _DoneeRegisterTempleScreenState
   }
 
   Future<void> _submit() async {
+    setState(() => _hasAttemptedSubmit = true);
     if (_nameController.text.trim().isEmpty ||
         _locationController.text.trim().isEmpty ||
+        _descController.text.trim().isEmpty ||
         _selectedImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Please fill all fields and select an image.')),
+          content: Text('Please fill all required fields (marked *) and upload an image.'),
+        ),
       );
       return;
     }
 
-    const primaryGreen = Color(0xFF24963F);
+    const primaryRed = Color(0xFFB71C1C);
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (_) =>
-          const Center(child: CircularProgressIndicator(color: primaryGreen)),
+          const Center(child: CircularProgressIndicator(color: primaryRed)),
     );
 
     final navigator = Navigator.of(context);
@@ -154,15 +162,17 @@ class _DoneeRegisterTempleScreenState
       final paramsToSign = 'folder=temples&timestamp=$timestamp$apiSecret';
       final signature = sha1.convert(utf8.encode(paramsToSign)).toString();
 
-      final uri =
-          Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
+      final uri = Uri.parse(
+        'https://api.cloudinary.com/v1_1/$cloudName/image/upload',
+      );
       final request = http.MultipartRequest('POST', uri)
         ..fields['api_key'] = apiKey
         ..fields['timestamp'] = timestamp.toString()
         ..fields['signature'] = signature
         ..fields['folder'] = 'temples'
         ..files.add(
-            http.MultipartFile.fromBytes('file', bytes, filename: 'temple.jpg'));
+          http.MultipartFile.fromBytes('file', bytes, filename: 'temple.jpg'),
+        );
 
       final response = await request.send();
       final responseData = await response.stream.bytesToString();
@@ -187,8 +197,10 @@ class _DoneeRegisterTempleScreenState
       navigator.pop(); // hide loader
       scaffoldMessenger.showSnackBar(
         SnackBar(
-            content: Text(
-                '$_categoryLabel registration submitted! Pending admin approval.')),
+          content: Text(
+            '$_categoryLabel registration submitted! Pending admin approval.',
+          ),
+        ),
       );
 
       if (mounted) {
@@ -212,11 +224,12 @@ class _DoneeRegisterTempleScreenState
 
   @override
   Widget build(BuildContext context) {
-    const primaryGreen = Color(0xFF24963F);
+    const primaryRed = Color(0xFFB71C1C);
+    const darkBrown = Color(0xFF5C4033);
+    const primaryGold = Color(0xFFF0A500);
 
     return SingleChildScrollView(
-      padding:
-          const EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 120),
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 120),
       child: SafeArea(
         bottom: false,
         child: Column(
@@ -230,21 +243,55 @@ class _DoneeRegisterTempleScreenState
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
-                color: primaryGreen,
+                color: primaryRed,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'Submit your donee details for verification',
-              style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+              style: TextStyle(fontSize: 15, color: darkBrown),
             ),
             const SizedBox(height: 24),
 
             // ── Category Dropdown ─────────────────────────────────
-            _buildGlassyDropdown(primaryGreen),
+            _buildGlassyDropdown(primaryRed, darkBrown, primaryGold),
 
             // ── Form (hidden until category selected) ────────────
             if (_selectedCategory != null) ...[
+              const SizedBox(height: 24),
+
+              // Name
+              _buildGlassyTextField(
+                controller: _nameController,
+                label: '$_categoryLabel Name',
+                icon: _categoryIcon(),
+                hint: 'e.g. Sri Venkateswara $_categoryLabel',
+                accentColor: primaryGold,
+                labelColor: darkBrown,
+                isRequired: true,
+                hasError: _hasAttemptedSubmit && _nameController.text.trim().isEmpty,
+              ),
+
+              const SizedBox(height: 16),
+
+              // Location with auto-detect
+              _buildLocationField(primaryGold, darkBrown),
+
+              const SizedBox(height: 16),
+
+              // Description
+              _buildGlassyTextField(
+                controller: _descController,
+                label: 'Description & History',
+                icon: Icons.description_rounded,
+                hint: 'Describe the $_categoryLabel...',
+                maxLines: 4,
+                accentColor: primaryGold,
+                labelColor: darkBrown,
+                isRequired: true,
+                hasError: _hasAttemptedSubmit && _descController.text.trim().isEmpty,
+              ),
+
               const SizedBox(height: 24),
 
               // Image upload
@@ -269,38 +316,55 @@ class _DoneeRegisterTempleScreenState
                       filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.6),
+                          color: (_hasAttemptedSubmit && _selectedImage == null)
+                              ? const Color(0xFFB71C1C).withValues(alpha: 0.04)
+                              : Colors.white.withValues(alpha: 0.6),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.5),
-                            width: 1.5,
+                            color: (_hasAttemptedSubmit && _selectedImage == null)
+                                ? const Color(0xFFB71C1C)
+                                : Colors.white.withValues(alpha: 0.5),
+                            width: (_hasAttemptedSubmit && _selectedImage == null) ? 2.0 : 1.5,
                           ),
                         ),
                         child: _selectedImage != null
                             ? Stack(
                                 fit: StackFit.expand,
                                 children: [
-                                  Image.file(_selectedImage!,
-                                      fit: BoxFit.cover),
+                                  Image.file(
+                                    _selectedImage!,
+                                    fit: BoxFit.cover,
+                                  ),
                                   Container(
                                     color: Colors.black12,
                                     alignment: Alignment.center,
-                                    child: const Icon(Icons.edit_rounded,
-                                        color: Colors.white, size: 36),
+                                    child: const Icon(
+                                      Icons.edit_rounded,
+                                      color: Colors.white,
+                                      size: 36,
+                                    ),
                                   ),
                                 ],
                               )
                             : Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.add_photo_alternate_rounded,
-                                      size: 48,
-                                      color: primaryGreen.withValues(alpha: 0.7)),
+                                  Icon(
+                                    Icons.add_photo_alternate_rounded,
+                                    size: 48,
+                                    color: (_hasAttemptedSubmit && _selectedImage == null)
+                                        ? const Color(0xFFB71C1C).withValues(alpha: 0.7)
+                                        : primaryGold.withValues(alpha: 0.7),
+                                  ),
                                   const SizedBox(height: 12),
                                   Text(
-                                    'Tap to upload $_categoryLabel image',
+                                    _hasAttemptedSubmit && _selectedImage == null
+                                        ? 'Image required *'
+                                        : 'Tap to upload $_categoryLabel image',
                                     style: TextStyle(
-                                      color: Colors.grey.shade700,
+                                      color: (_hasAttemptedSubmit && _selectedImage == null)
+                                          ? const Color(0xFFB71C1C)
+                                          : Colors.grey.shade700,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -312,34 +376,6 @@ class _DoneeRegisterTempleScreenState
                 ),
               ),
 
-              const SizedBox(height: 24),
-
-              // Name
-              _buildGlassyTextField(
-                controller: _nameController,
-                label: '$_categoryLabel Name',
-                icon: _categoryIcon(),
-                hint: 'e.g. Sri Venkateswara $_categoryLabel',
-                accentColor: primaryGreen,
-              ),
-
-              const SizedBox(height: 16),
-
-              // Location with auto-detect
-              _buildLocationField(primaryGreen),
-
-              const SizedBox(height: 16),
-
-              // Description
-              _buildGlassyTextField(
-                controller: _descController,
-                label: 'Description & History',
-                icon: Icons.description_rounded,
-                hint: 'Describe the $_categoryLabel...',
-                maxLines: 4,
-                accentColor: primaryGreen,
-              ),
-
               const SizedBox(height: 32),
 
               // Submit Button
@@ -349,10 +385,10 @@ class _DoneeRegisterTempleScreenState
                 child: ElevatedButton(
                   onPressed: _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryGreen,
+                    backgroundColor: primaryRed,
                     foregroundColor: Colors.white,
                     elevation: 8,
-                    shadowColor: primaryGreen.withValues(alpha: 0.5),
+                    shadowColor: primaryRed.withValues(alpha: 0.5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -377,7 +413,7 @@ class _DoneeRegisterTempleScreenState
   IconData _categoryIcon() {
     switch (_selectedCategory) {
       case 'Gaushala':
-        return Icons.pets_rounded;
+        return Icons.agriculture_rounded; // barn/farm icon for Gaushala
       case 'Charity Organisation':
         return Icons.volunteer_activism_rounded;
       case 'Yogdaan':
@@ -387,7 +423,11 @@ class _DoneeRegisterTempleScreenState
     }
   }
 
-  Widget _buildGlassyDropdown(Color accentColor) {
+  Widget _buildGlassyDropdown(
+    Color accentColor,
+    Color labelColor,
+    Color iconColor,
+  ) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
@@ -418,13 +458,30 @@ class _DoneeRegisterTempleScreenState
               decoration: InputDecoration(
                 border: InputBorder.none,
                 labelText: 'Select Category',
-                icon: Icon(Icons.category_rounded, color: accentColor),
-                labelStyle: TextStyle(color: Colors.grey.shade700),
+                icon: Icon(Icons.category_rounded, color: iconColor),
+                labelStyle: TextStyle(color: labelColor),
               ),
-              hint: Text('Choose a category',
-                  style: TextStyle(color: Colors.grey.shade500)),
+              hint: Text(
+                'Choose a category',
+                style: TextStyle(color: Colors.grey.shade500),
+              ),
               items: _categories
-                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                  .map(
+                    (c) => DropdownMenuItem(
+                      value: c,
+                      child: Text(
+                        c,
+                        style: TextStyle(
+                          color: _selectedCategory == c
+                              ? accentColor
+                              : Colors.black87,
+                          fontWeight: _selectedCategory == c
+                              ? FontWeight.w700
+                              : FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                  )
                   .toList(),
               onChanged: (val) {
                 setState(() {
@@ -443,13 +500,22 @@ class _DoneeRegisterTempleScreenState
     );
   }
 
-  Widget _buildLocationField(Color accentColor) {
+  Widget _buildLocationField(Color accentColor, Color labelColor) {
+    final bool hasError =
+        _hasAttemptedSubmit && _locationController.text.trim().isEmpty;
+    final borderColor =
+        hasError ? const Color(0xFFB71C1C) : Colors.white.withValues(alpha: 0.5);
+    final effectiveAccent = hasError ? const Color(0xFFB71C1C) : accentColor;
+    final effectiveLabel = hasError ? const Color(0xFFB71C1C) : labelColor;
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: hasError
+                ? const Color(0xFFB71C1C).withValues(alpha: 0.08)
+                : Colors.black.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -461,12 +527,11 @@ class _DoneeRegisterTempleScreenState
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.6),
+              color: hasError
+                  ? const Color(0xFFB71C1C).withValues(alpha: 0.04)
+                  : Colors.white.withValues(alpha: 0.6),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.5),
-                width: 1.5,
-              ),
+              border: Border.all(color: borderColor, width: hasError ? 2.0 : 1.5),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Row(
@@ -474,13 +539,16 @@ class _DoneeRegisterTempleScreenState
                 Expanded(
                   child: TextField(
                     controller: _locationController,
-                    style: const TextStyle(fontSize: 16, color: Colors.black87),
+                    style: TextStyle(fontSize: 16, color: effectiveLabel),
+                    onChanged: (_) {
+                      if (_hasAttemptedSubmit) setState(() {});
+                    },
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      labelText: 'Location Details',
+                      labelText: 'Location Details *',
                       hintText: 'e.g. Jubilee Hills, Hyderabad',
-                      icon: Icon(Icons.location_on_rounded, color: accentColor),
-                      labelStyle: TextStyle(color: Colors.grey.shade700),
+                      icon: Icon(Icons.location_on_rounded, color: effectiveAccent),
+                      labelStyle: TextStyle(color: effectiveLabel),
                       hintStyle: TextStyle(color: Colors.grey.shade500),
                     ),
                   ),
@@ -491,13 +559,15 @@ class _DoneeRegisterTempleScreenState
                       ? const SizedBox(
                           width: 20,
                           height: 20,
-                          child:
-                              CircularProgressIndicator(strokeWidth: 2),
+                          child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : Tooltip(
                           message: 'Auto-detect location',
-                          child: Icon(Icons.my_location_rounded,
-                              color: accentColor, size: 22),
+                          child: Icon(
+                            Icons.my_location_rounded,
+                            color: effectiveAccent,
+                            size: 22,
+                          ),
                         ),
                 ),
               ],
@@ -513,15 +583,25 @@ class _DoneeRegisterTempleScreenState
     required String label,
     required IconData icon,
     required Color accentColor,
+    Color? labelColor,
     String? hint,
     int maxLines = 1,
+    bool isRequired = false,
+    bool hasError = false,
   }) {
+    final labelText = isRequired ? '$label *' : label;
+    final borderColor =
+        hasError ? const Color(0xFFB71C1C) : Colors.white.withValues(alpha: 0.5);
+    final borderWidth = hasError ? 2.0 : 1.5;
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: hasError
+                ? const Color(0xFFB71C1C).withValues(alpha: 0.08)
+                : Colors.black.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -533,24 +613,34 @@ class _DoneeRegisterTempleScreenState
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.6),
+              color: hasError
+                  ? const Color(0xFFB71C1C).withValues(alpha: 0.04)
+                  : Colors.white.withValues(alpha: 0.6),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.5),
-                width: 1.5,
-              ),
+              border: Border.all(color: borderColor, width: borderWidth),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: TextField(
               controller: controller,
               maxLines: maxLines,
-              style: const TextStyle(fontSize: 16, color: Colors.black87),
+              style: TextStyle(
+                fontSize: 16,
+                color: labelColor ?? Colors.black87,
+              ),
+              onChanged: (_) {
+                if (_hasAttemptedSubmit) setState(() {});
+              },
               decoration: InputDecoration(
                 border: InputBorder.none,
-                labelText: label,
+                labelText: labelText,
                 hintText: hint,
-                icon: Icon(icon, color: accentColor),
-                labelStyle: TextStyle(color: Colors.grey.shade700),
+                icon: Icon(icon,
+                    color: hasError ? const Color(0xFFB71C1C) : accentColor),
+                labelStyle: TextStyle(
+                  color: hasError
+                      ? const Color(0xFFB71C1C)
+                      : (labelColor ?? Colors.grey.shade700),
+                ),
                 hintStyle: TextStyle(color: Colors.grey.shade500),
               ),
             ),
