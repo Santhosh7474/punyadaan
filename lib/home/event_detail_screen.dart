@@ -8,7 +8,8 @@ import 'package:qr_flutter/qr_flutter.dart';
 class EventDetailScreen extends StatefulWidget {
   final String eventId;
   final Map<String, dynamic> eventData;
-  final dynamic currentPosition; // Position? — optional, no hard dep on geolocator type
+  final dynamic
+  currentPosition; // Position? — optional, no hard dep on geolocator type
 
   const EventDetailScreen({
     super.key,
@@ -23,9 +24,9 @@ class EventDetailScreen extends StatefulWidget {
 
 class _EventDetailScreenState extends State<EventDetailScreen> {
   // ── Brand palette ────────────────────────────────────────────────────
-  static const primaryRed   = Color(0xFFB71C1C);
-  static const darkBrown    = Color(0xFF5C4033);
-  static const pillYellow   = Color(0xFFF0A500);
+  static const primaryRed = Color(0xFFB71C1C);
+  static const darkBrown = Color(0xFF5C4033);
+  static const pillYellow = Color(0xFFF0A500);
 
   // ── Demo Donation Flow ──────────────────────────────────────────────
   Future<void> _showDonationDialog() async {
@@ -110,8 +111,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: amountCtrl,
-                          keyboardType:
-                              const TextInputType.numberWithOptions(decimal: true),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
                           autofocus: true,
                           style: const TextStyle(
                             fontSize: 28,
@@ -143,7 +145,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                           ),
                           validator: (v) {
                             final n = double.tryParse(v ?? '');
-                            if (n == null || n <= 0) return 'Enter a valid amount';
+                            if (n == null || n <= 0) {
+                              return 'Enter a valid amount';
+                            }
                             return null;
                           },
                         ),
@@ -151,6 +155,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         // Quick amount chips — amber pill style
                         Wrap(
                           spacing: 8,
+                          runSpacing: 6,
                           children: [100, 500, 1000, 5000].map((amt) {
                             return GestureDetector(
                               onTap: () => amountCtrl.text = amt.toString(),
@@ -400,15 +405,15 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           .doc(widget.eventId)
           .snapshots(),
       builder: (context, snapshot) {
-        final eventData =
-            (snapshot.hasData && snapshot.data!.exists)
-                ? (snapshot.data!.data() as Map<String, dynamic>)
-                : widget.eventData;
+        final eventData = (snapshot.hasData && snapshot.data!.exists)
+            ? (snapshot.data!.data() as Map<String, dynamic>)
+            : widget.eventData;
 
         final imageUrl = eventData['imageUrl'] as String? ?? '';
         final title =
             eventData['title'] ?? eventData['name'] ?? 'Untitled Event';
-        final description = eventData['description'] ??
+        final description =
+            eventData['description'] ??
             'No additional description provided at this time.';
         final category = eventData['category'] ?? 'General';
         final targetAmount = (eventData['targetAmount'] ?? 0) as num;
@@ -432,8 +437,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
         final double target = targetAmount.toDouble();
         final double received = receivedAmount.toDouble();
-        final double progress =
-            target > 0 ? (received / target).clamp(0.0, 1.0) : 0.0;
+        final double progress = target > 0
+            ? (received / target).clamp(0.0, 1.0)
+            : 0.0;
 
         const baseUrl = 'https://punyadaan-e0972.web.app';
         final qrData = '$baseUrl/event/${widget.eventId}';
@@ -448,8 +454,11 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 pinned: true,
                 backgroundColor: primaryRed,
                 flexibleSpace: FlexibleSpaceBar(
-                  titlePadding:
-                      const EdgeInsets.only(left: 16, bottom: 16, right: 16),
+                  titlePadding: const EdgeInsets.only(
+                    left: 16,
+                    bottom: 16,
+                    right: 16,
+                  ),
                   background: Stack(
                     fit: StackFit.expand,
                     children: [
@@ -627,10 +636,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                               child: LinearProgressIndicator(
                                 value: progress,
                                 minHeight: 8,
-                                backgroundColor:
-                                    Colors.white.withValues(alpha: 0.25),
-                                valueColor:
-                                    const AlwaysStoppedAnimation<Color>(
+                                backgroundColor: Colors.white.withValues(
+                                  alpha: 0.25,
+                                ),
+                                valueColor: const AlwaysStoppedAnimation<Color>(
                                   Colors.white,
                                 ),
                               ),
@@ -729,8 +738,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
-                            border:
-                                Border.all(color: Colors.grey.shade200),
+                            border: Border.all(color: Colors.grey.shade200),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withValues(alpha: 0.03),

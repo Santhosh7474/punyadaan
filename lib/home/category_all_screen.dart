@@ -36,7 +36,10 @@ class _CategoryAllScreenState extends State<CategoryAllScreen> {
       _orgStream = FirebaseFirestore.instance
           .collection('organizations')
           .where('status', isEqualTo: 'approved')
-          .where('category', whereIn: [widget.category, widget.category.toLowerCase()])
+          .where(
+            'category',
+            whereIn: [widget.category, widget.category.toLowerCase()],
+          )
           .snapshots();
     }
     _eventStream = FirebaseFirestore.instance
@@ -51,7 +54,13 @@ class _CategoryAllScreenState extends State<CategoryAllScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F8FD),
       appBar: AppBar(
-        title: Text(widget.title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
+        title: Text(
+          widget.title,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black87),
@@ -64,7 +73,9 @@ class _CategoryAllScreenState extends State<CategoryAllScreen> {
             builder: (context, eventSnapshot) {
               if (orgSnapshot.connectionState == ConnectionState.waiting &&
                   eventSnapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator(color: Color(0xFFE89344)));
+                return const Center(
+                  child: CircularProgressIndicator(color: Color(0xFFB71C1C)),
+                );
               }
 
               // Combined items list: orgs first, then events
@@ -86,13 +97,19 @@ class _CategoryAllScreenState extends State<CategoryAllScreen> {
                   child: Text(
                     'No locations or events found for ${widget.title}.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic),
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                 );
               }
 
               return ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 itemCount: items.length,
                 itemBuilder: (context, index) {
                   final item = items[index];
@@ -102,14 +119,16 @@ class _CategoryAllScreenState extends State<CategoryAllScreen> {
                     final org = Organization.fromFirestore(doc);
 
                     String distanceText = 'N/A';
-                    if (widget.currentPosition != null && org.locationPin != null) {
+                    if (widget.currentPosition != null &&
+                        org.locationPin != null) {
                       double distanceInMeters = Geolocator.distanceBetween(
                         widget.currentPosition!.latitude,
                         widget.currentPosition!.longitude,
                         org.locationPin!.latitude,
                         org.locationPin!.longitude,
                       );
-                      distanceText = '${(distanceInMeters / 1000).toStringAsFixed(1)} km';
+                      distanceText =
+                          '${(distanceInMeters / 1000).toStringAsFixed(1)} km';
                     }
 
                     return Padding(
@@ -141,7 +160,8 @@ class _CategoryAllScreenState extends State<CategoryAllScreen> {
                     final data = doc.data() as Map<String, dynamic>;
                     final eventId = doc.id;
                     final imageUrl = data['imageUrl'] as String? ?? '';
-                    final title = data['title'] ?? data['name'] ?? 'Unnamed Event';
+                    final title =
+                        data['title'] ?? data['name'] ?? 'Unnamed Event';
                     final creatorName = data['creatorName'] ?? 'Unknown';
                     final targetAmount = data['targetAmount'] ?? 0;
 
@@ -162,7 +182,8 @@ class _CategoryAllScreenState extends State<CategoryAllScreen> {
                         child: _FullWidthOrgCard(
                           title: title,
                           distance: 'By: $creatorName',
-                          location: 'Target: ₹${(targetAmount as num).toStringAsFixed(0)}',
+                          location:
+                              'Target: ₹${(targetAmount as num).toStringAsFixed(0)}',
                           imageUrl: imageUrl,
                           isEvent: true,
                         ),
@@ -225,14 +246,20 @@ class _FullWidthOrgCard extends StatelessWidget {
                           fit: BoxFit.cover,
                         )
                       : null,
-                  color: isEvent ? const Color(0xFF24963F).withValues(alpha: 0.15) : Colors.grey.shade200,
+                  color: isEvent
+                      ? const Color(0xFFB71C1C).withValues(alpha: 0.12)
+                      : Colors.grey.shade200,
                 ),
                 child: imageUrl.isEmpty
                     ? Center(
                         child: Icon(
-                          isEvent ? Icons.event_rounded : Icons.location_city_rounded,
+                          isEvent
+                              ? Icons.event_rounded
+                              : Icons.location_city_rounded,
                           size: 40,
-                          color: isEvent ? const Color(0xFF24963F) : Colors.grey,
+                          color: isEvent
+                              ? const Color(0xFFB71C1C)
+                              : Colors.grey,
                         ),
                       )
                     : null,
@@ -247,23 +274,37 @@ class _FullWidthOrgCard extends StatelessWidget {
                       if (isEvent)
                         Container(
                           margin: const EdgeInsets.only(bottom: 6),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF24963F).withValues(alpha: 0.12),
+                            color: const Color(
+                              0xFFF0A500,
+                            ).withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: const Color(
+                                0xFFF0A500,
+                              ).withValues(alpha: 0.4),
+                            ),
                           ),
                           child: const Text(
-                            'Event',
+                            'EVENT',
                             style: TextStyle(
                               fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF24963F),
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFFF0A500),
                             ),
                           ),
                         ),
                       Text(
                         title,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.black87,
+                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -273,13 +314,16 @@ class _FullWidthOrgCard extends StatelessWidget {
                           Icon(
                             isEvent ? Icons.person_rounded : Icons.location_on,
                             size: 14,
-                            color: isEvent ? const Color(0xFF24963F) : Colors.redAccent,
+                            color: const Color(0xFFB71C1C),
                           ),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               distance,
-                              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade700,
+                              ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -289,10 +333,10 @@ class _FullWidthOrgCard extends StatelessWidget {
                       const SizedBox(height: 6),
                       Text(
                         location,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: isEvent ? Colors.amber.shade700 : const Color(0xFFE89344),
+                          color: Color(0xFF5C4033),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

@@ -787,7 +787,7 @@ class _DemoHomePageState extends State<DemoHomePage> {
                 );
               },
               child: const Text(
-                'View All >',
+                'View All',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -1819,15 +1819,6 @@ class _DemoHomePageState extends State<DemoHomePage> {
             Expanded(
               child: Row(
                 children: [
-                  Container(
-                    width: 4,
-                    height: 22,
-                    margin: const EdgeInsets.only(right: 10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFB71C1C),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
                   const Text(
                     'Events',
                     style: TextStyle(
@@ -1854,7 +1845,7 @@ class _DemoHomePageState extends State<DemoHomePage> {
                 );
               },
               child: const Text(
-                'View All >',
+                'View All',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -1982,7 +1973,7 @@ class _DemoHomePageState extends State<DemoHomePage> {
                 );
               },
               child: const Text(
-                'View All >',
+                'View All',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
