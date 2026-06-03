@@ -335,7 +335,7 @@ No issues found!
 
 | Property | Value |
 |---|---|
-| App version | 1.0.0+1 |
+| App version | 1.2.1 |
 | Flutter SDK | ≥ 3.x (stable) |
 | Dart SDK | ^3.11.1 |
 | Min Android SDK | As per Flutter defaults (API 21+) |
