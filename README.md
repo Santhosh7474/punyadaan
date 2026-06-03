@@ -335,7 +335,7 @@ No issues found!
 
 | Property | Value |
 |---|---|
-| App version | 1.2.1 |
+| App version | v1.2.1 |
 | Flutter SDK | ≥ 3.x (stable) |
 | Dart SDK | ^3.11.1 |
 | Min Android SDK | As per Flutter defaults (API 21+) |
@@ -343,4 +343,22 @@ No issues found!
 
 ---
 
-*Built with ❤️ using Flutter & Firebase.*
+---
+
+## Developer
+
+**Santhosh Buchala**  
+Junior Web Developer & Flutter Developer
+
+📧 Open to collaboration, freelance opportunities, and developer discussions.
+
+### Connect with me
+
+- LinkedIn: https://www.linkedin.com/in/buchala-santhosh/
+- GitHub: https://github.com/Santhosh7474
+
+If you have any questions about the project, feel free to connect with me on LinkedIn.
+
+---
+
+⭐ If you found this project useful, consider giving the repository a star.
