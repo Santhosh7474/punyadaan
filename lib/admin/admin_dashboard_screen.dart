@@ -289,11 +289,45 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     }
   }
 
-  void _deleteEvent(String eventId) async {
-    await FirebaseFirestore.instance.collection('events').doc(eventId).delete();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Event deleted successfully')));
-    }
+  void _deleteEvent(String eventId) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Delete Event?',
+            style: TextStyle(fontWeight: FontWeight.w800)),
+        content: const Text(
+            'This action is permanent and cannot be undone. Are you sure you want to delete this event?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel',
+                style: TextStyle(color: Colors.black54, fontWeight: FontWeight.w600)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await FirebaseFirestore.instance
+                  .collection('events')
+                  .doc(eventId)
+                  .delete();
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Event deleted.')));
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFB71C1C),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('Delete',
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
   }
 
   void _toggleUserBlock(String uid, bool currentBlockStatus) async {
@@ -306,11 +340,45 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     }
   }
 
-  void _deleteOrganization(String orgId) async {
-    await FirebaseFirestore.instance.collection('organizations').doc(orgId).delete();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Organization deleted securely!')));
-    }
+  void _deleteOrganization(String orgId) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Delete Organisation?',
+            style: TextStyle(fontWeight: FontWeight.w800)),
+        content: const Text(
+            'This action is permanent and cannot be undone. Are you sure you want to delete this organisation?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel',
+                style: TextStyle(color: Colors.black54, fontWeight: FontWeight.w600)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await FirebaseFirestore.instance
+                  .collection('organizations')
+                  .doc(orgId)
+                  .delete();
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Organisation deleted.')));
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFB71C1C),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('Delete',
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
   }
 
   void _updateOrganizationStatus(String orgId, String newStatus) async {
@@ -322,50 +390,54 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     }
   }
 
-  Widget _buildOrganizationsList() {
+  // ── Approved organizations tab ─────────────────────────────────────
+  Widget _buildApprovedOrganizationsList() {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('organizations').snapshots(),
+      stream: FirebaseFirestore.instance
+          .collection('organizations')
+          .where('status', isEqualTo: 'approved')
+          .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const Center(child: Text('No organizations found.'));
+          return const Center(child: Text('No approved organizations yet.'));
         }
 
         final docs = snapshot.data!.docs;
         final orgs = docs.map((doc) => Organization.fromFirestore(doc)).toList();
-        
+
         return ListView.builder(
           itemCount: orgs.length,
           itemBuilder: (context, index) {
             final org = orgs[index];
-            
             return Card(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: ListTile(
-                leading: org.imageUrl.isNotEmpty 
-                    ? Image.network(org.imageUrl, width: 50, height: 50, fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => const Icon(Icons.location_city))
+                leading: org.imageUrl.isNotEmpty
+                    ? Image.network(org.imageUrl,
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(Icons.location_city))
                     : const Icon(Icons.location_city),
-                title: Text(org.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text('Category: ${org.category.toUpperCase()}\nLoc: ${org.locationName}'),
+                title: Text(org.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text(
+                    'Category: ${org.category.toUpperCase()}\nLoc: ${org.locationName}'),
                 isThreeLine: true,
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.check_circle, color: Colors.green),
-                      onPressed: () => _updateOrganizationStatus(org.id, 'approved'),
-                      tooltip: 'Approve',
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.cancel, color: Colors.red),
-                      onPressed: () => _updateOrganizationStatus(org.id, 'rejected'),
-                      tooltip: 'Reject',
-                    ),
-                    IconButton(
                       icon: const Icon(Icons.edit, color: Colors.blue),
-                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AddOrganizationScreen(existingOrg: org))),
+                      onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) =>
+                                  AddOrganizationScreen(existingOrg: org))),
                       tooltip: 'Edit',
                     ),
                     IconButton(
@@ -380,6 +452,204 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           },
         );
       },
+    );
+  }
+
+  // ── Merged Waiting tab (pending events + pending orgs) ─────────────
+  Widget _buildWaitingTab() {
+    final pendingEventsStream = FirebaseFirestore.instance
+        .collection('events')
+        .where('status', isEqualTo: 'pending')
+        .snapshots();
+
+    final pendingOrgsStream = FirebaseFirestore.instance
+        .collection('organizations')
+        .where('status', isEqualTo: 'pending')
+        .snapshots();
+
+    return StreamBuilder<QuerySnapshot>(
+      stream: pendingEventsStream,
+      builder: (context, eventSnap) {
+        return StreamBuilder<QuerySnapshot>(
+          stream: pendingOrgsStream,
+          builder: (context, orgSnap) {
+            if (eventSnap.connectionState == ConnectionState.waiting ||
+                orgSnap.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            // Build unified item list: type + doc
+            final List<Map<String, dynamic>> items = [];
+
+            if (eventSnap.hasData) {
+              for (final doc in eventSnap.data!.docs) {
+                items.add({'type': 'event', 'doc': doc});
+              }
+            }
+            if (orgSnap.hasData) {
+              for (final doc in orgSnap.data!.docs) {
+                items.add({'type': 'org', 'doc': doc});
+              }
+            }
+
+            if (items.isEmpty) {
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.done_all_rounded,
+                        size: 56, color: Color(0xFF24963F)),
+                    SizedBox(height: 12),
+                    Text('All clear! Nothing pending.',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF24963F))),
+                  ],
+                ),
+              );
+            }
+
+            return ListView.builder(
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                final item = items[index];
+                if (item['type'] == 'event') {
+                  return _buildWaitingEventCard(item['doc']);
+                } else {
+                  return _buildWaitingOrgCard(item['doc']);
+                }
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildWaitingEventCard(QueryDocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>? ?? {};
+    final creatorType = data['creatorType'] as String? ?? 'donator';
+    final isDonator = creatorType == 'donator';
+    final badgeLabel = isDonator ? 'Donator Event' : 'Donee Event';
+    final badgeColor =
+        isDonator ? const Color(0xFF24963F) : const Color(0xFF1565C0);
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: ListTile(
+        onTap: () => _showEventDetails(data),
+        leading: data['imageUrl'] != null
+            ? Image.network(data['imageUrl'],
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) =>
+                    const Icon(Icons.event))
+            : const Icon(Icons.event),
+        title: Row(
+          children: [
+            Expanded(
+                child: Text(data['title'] ?? data['name'] ?? 'Unnamed Event',
+                    style:
+                        const TextStyle(fontWeight: FontWeight.bold))),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: badgeColor.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(badgeLabel,
+                  style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: badgeColor)),
+            ),
+          ],
+        ),
+        subtitle: Text(
+            'Date: ${data['date'] ?? 'N/A'}\nBy: ${data['creatorName'] ?? 'Unknown'}'),
+        isThreeLine: true,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.check_circle, color: Colors.green),
+              onPressed: () => _updateEventStatus(doc.id, 'approved'),
+              tooltip: 'Approve',
+            ),
+            IconButton(
+              icon: const Icon(Icons.cancel, color: Colors.red),
+              onPressed: () => _updateEventStatus(doc.id, 'declined'),
+              tooltip: 'Reject',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWaitingOrgCard(QueryDocumentSnapshot doc) {
+    final org = Organization.fromFirestore(doc);
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: ListTile(
+        leading: org.imageUrl.isNotEmpty
+            ? Image.network(org.imageUrl,
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) =>
+                    const Icon(Icons.location_city))
+            : const Icon(Icons.location_city),
+        title: Row(
+          children: [
+            Expanded(
+                child: Text(org.name,
+                    style:
+                        const TextStyle(fontWeight: FontWeight.bold))),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0A500).withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text('Organisation',
+                  style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFFF0A500))),
+            ),
+          ],
+        ),
+        subtitle: Text(
+            'Category: ${org.category.toUpperCase()}\nLoc: ${org.locationName}'),
+        isThreeLine: true,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.check_circle, color: Colors.green),
+              onPressed: () =>
+                  _updateOrganizationStatus(org.id, 'approved'),
+              tooltip: 'Approve',
+            ),
+            IconButton(
+              icon: const Icon(Icons.cancel, color: Colors.red),
+              onPressed: () =>
+                  _updateOrganizationStatus(org.id, 'rejected'),
+              tooltip: 'Reject',
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              onPressed: () => _deleteOrganization(org.id),
+              tooltip: 'Delete',
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -771,11 +1041,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          _buildEventsList('pending'),
-          _buildEventsList('approved'),
-          _buildUsersList(),
-          _buildOrganizationsList(),
-          _buildDeactivationRequests(),
+          _buildWaitingTab(),           // 0: Waiting (pending events + pending orgs)
+          _buildEventsList('approved'), // 1: Events (approved events)
+          _buildApprovedOrganizationsList(), // 2: Organisations (approved orgs)
+          _buildUsersList(),            // 3: Users
+          _buildDeactivationRequests(), // 4: Deactivations
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -785,11 +1055,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         selectedItemColor: const Color(0xFF24963F),
         unselectedItemColor: Colors.grey.shade500,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.pending_actions), label: 'Waiting'),
-          BottomNavigationBarItem(icon: Icon(Icons.event_available), label: 'Approved'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.pending_actions), label: 'Waiting'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.event_available), label: 'Events'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.account_balance), label: 'Organisations'),
           BottomNavigationBarItem(icon: Icon(Icons.group), label: 'Users'),
-          BottomNavigationBarItem(icon: Icon(Icons.account_balance), label: 'Orgs'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_off_rounded), label: 'Deactivations'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.person_off_rounded), label: 'Deactivations'),
         ],
       ),
     );

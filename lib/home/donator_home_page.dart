@@ -58,12 +58,15 @@ class _DemoHomePageState extends State<DemoHomePage> {
   late final Stream<QuerySnapshot> _eventCharityStream;
   late final Stream<QuerySnapshot> _eventKanyadaanStream;
   late final Stream<QuerySnapshot> _eventYogdaanStream;
+  // Stream for donator-created events (category == 'donator_event')
+  late final Stream<QuerySnapshot> _donatorEventsStream;
 
   // Cached real-time stream for top donators — cached so parent setStates don't recreate it.
   late final Stream<QuerySnapshot> _topDonatorsStream;
 
   late AppLinks _appLinks;
   StreamSubscription<Uri>? _linkSubscription;
+  StreamSubscription<Position>? _positionSubscription;
 
   @override
   void initState() {
@@ -140,6 +143,13 @@ class _DemoHomePageState extends State<DemoHomePage> {
         .limit(3)
         .snapshots();
 
+    _donatorEventsStream = FirebaseFirestore.instance
+        .collection('events')
+        .where('status', isEqualTo: 'approved')
+        .where('category', isEqualTo: 'donator_event')
+        .limit(3)
+        .snapshots();
+
     _topDonatorsStream = FirebaseFirestore.instance
         .collection('users')
         .snapshots();
@@ -171,7 +181,6 @@ class _DemoHomePageState extends State<DemoHomePage> {
 
     _initDeepLinks();
   }
-
 
   Future<void> _initDeepLinks() async {
     _appLinks = AppLinks();
@@ -258,6 +267,7 @@ class _DemoHomePageState extends State<DemoHomePage> {
     _searchController.dispose();
     _searchTimer?.cancel();
     _linkSubscription?.cancel();
+    _positionSubscription?.cancel();
     super.dispose();
   }
 
@@ -286,7 +296,12 @@ class _DemoHomePageState extends State<DemoHomePage> {
     }
 
     try {
-      Position position = await Geolocator.getCurrentPosition();
+      // One-shot: get position immediately for first render
+      Position position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
       List<Placemark> placemarks = await placemarkFromCoordinates(
         position.latitude,
         position.longitude,
@@ -299,6 +314,19 @@ class _DemoHomePageState extends State<DemoHomePage> {
           }
         });
       }
+
+      // Continuous: keep updating so distance cards stay accurate
+      _positionSubscription =
+          Geolocator.getPositionStream(
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.high,
+              distanceFilter: 50, // Only update when moved 50m
+            ),
+          ).listen((pos) {
+            if (mounted) {
+              setState(() => _currentPosition = pos);
+            }
+          });
     } catch (e) {
       if (mounted) setState(() => _currentLocation = 'Location Error');
     }
@@ -645,7 +673,9 @@ class _DemoHomePageState extends State<DemoHomePage> {
                             width: 44,
                             height: 44,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF0A500).withValues(alpha: 0.12),
+                              color: const Color(
+                                0xFFF0A500,
+                              ).withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(
@@ -846,8 +876,10 @@ class _DemoHomePageState extends State<DemoHomePage> {
                           ? NetworkImage(photoUrl)
                           : null,
                       child: photoUrl == null
-                          ? const Icon(Icons.person_rounded,
-                              color: Color(0xFFF0A500))
+                          ? const Icon(
+                              Icons.person_rounded,
+                              color: Color(0xFFF0A500),
+                            )
                           : null,
                     ),
                     title: Text(
@@ -882,192 +914,6 @@ class _DemoHomePageState extends State<DemoHomePage> {
           },
         ),
       ],
-    );
-  }
-
-  Widget _buildEventCard(Map<String, dynamic> data) {
-    final imageUrl = data['imageUrl'] as String? ?? '';
-    final title = data['title'] ?? data['name'] ?? 'Unnamed Event';
-    final creator = data['creatorName'] ?? 'Unknown';
-    final targetAmount = (data['targetAmount'] ?? 0) as num;
-    final location = data['location'] as String? ?? '';
-
-    return Container(
-      width: 240,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.shade400.withValues(alpha: 0.4),
-            blurRadius: 20,
-            spreadRadius: 2,
-            offset: const Offset(4, 10),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.7),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.9),
-                width: 1.5,
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Image — same as TempleCard
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(24),
-                  ),
-                  child: imageUrl.startsWith('http')
-                      ? Image.network(
-                          imageUrl,
-                          height: 125,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Container(
-                                height: 125,
-                                color: Colors.grey.shade200,
-                                alignment: Alignment.center,
-                                child: const Icon(
-                                  Icons.event_rounded,
-                                  color: Colors.grey,
-                                  size: 40,
-                                ),
-                              ),
-                        )
-                      : Container(
-                          height: 125,
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Color(0xFF24963F), Color(0xFF1E7A33)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                          ),
-                          alignment: Alignment.center,
-                          child: const Icon(
-                            Icons.event_rounded,
-                            color: Colors.white38,
-                            size: 48,
-                          ),
-                        ),
-                ),
-                // Content — same as TempleCard
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              title,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w800,
-                                fontSize: 16,
-                                color: Colors.black87,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'By: $creator',
-                              style: TextStyle(
-                                color: Colors.grey.shade700,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                        // Green pill — same style as TempleCard location pill
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(
-                              0xFFE8F5E9,
-                            ).withValues(alpha: 0.8),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.white, width: 0.5),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.monetization_on_rounded,
-                                      size: 16,
-                                      color: Color(0xFF24963F),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Expanded(
-                                      child: Text(
-                                        location.isNotEmpty
-                                            ? location
-                                            : '₹${targetAmount.toStringAsFixed(0)}',
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w700,
-                                          color: Colors.black87,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF24963F),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: const Text(
-                                  'Donate',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 
@@ -1128,6 +974,7 @@ class _DemoHomePageState extends State<DemoHomePage> {
                               builder: (_) => EventDetailScreen(
                                 eventId: doc.id,
                                 eventData: data,
+                                currentPosition: _currentPosition,
                               ),
                             ),
                           ),
@@ -1778,6 +1625,10 @@ class _DemoHomePageState extends State<DemoHomePage> {
                               const SizedBox(height: 32),
                               _buildRecentDonations(),
 
+                              // ── Events Section (Donator Events only) ──────────────
+                              _buildDonatorEventsSection(),
+                              const SizedBox(height: 36),
+
                               _buildDynamicListSection(
                                 'Nearby Temples',
                                 'Temple',
@@ -1818,7 +1669,10 @@ class _DemoHomePageState extends State<DemoHomePage> {
                       ),
                     ),
                   ), // End of SingleChildScrollView
-                  const DoneeYourEventsScreen(showCreateButton: true),
+                  const DoneeYourEventsScreen(
+                    showCreateButton: true,
+                    isDonator: true,
+                  ),
                   const Center(child: Text('Scan Screen - Coming Soon')),
                   const TransactionsScreen(),
                 ],
@@ -1952,6 +1806,140 @@ class _DemoHomePageState extends State<DemoHomePage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildDonatorEventsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  Container(
+                    width: 4,
+                    height: 22,
+                    margin: const EdgeInsets.only(right: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFB71C1C),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const Text(
+                    'Events',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFFB71C1C),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CategoryAllScreen(
+                      title: 'Events',
+                      category: 'donator_event',
+                      currentPosition: _currentPosition,
+                    ),
+                  ),
+                );
+              },
+              child: const Text(
+                'View All >',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFFF0A500),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 270,
+          child: StreamBuilder<QuerySnapshot>(
+            stream: _donatorEventsStream,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.amber.shade700,
+                  ),
+                );
+              }
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return Center(
+                  child: Text(
+                    'No events yet. Be the first to create one!',
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                );
+              }
+              return ListView.builder(
+                scrollDirection: Axis.horizontal,
+                clipBehavior: Clip.none,
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  final doc = snapshot.data!.docs[index];
+                  final data = doc.data() as Map<String, dynamic>;
+                  final eventId = doc.id;
+                  final eventLocation = data['location'] as String? ?? '';
+                  final rawEventPin = data['locationPin'];
+                  String eventDistanceText = 'Calculating...';
+                  if (_currentPosition != null && rawEventPin is GeoPoint) {
+                    final meters = Geolocator.distanceBetween(
+                      _currentPosition!.latitude,
+                      _currentPosition!.longitude,
+                      rawEventPin.latitude,
+                      rawEventPin.longitude,
+                    );
+                    eventDistanceText =
+                        '${(meters / 1000).toStringAsFixed(1)} km away';
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 20, bottom: 20),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => EventDetailScreen(
+                              eventId: eventId,
+                              eventData: data,
+                              currentPosition: _currentPosition,
+                            ),
+                          ),
+                        );
+                      },
+                      child: _TempleCard(
+                        title: data['title'] ?? data['name'] ?? 'Event',
+                        distance: eventLocation.isNotEmpty
+                            ? eventLocation
+                            : 'Location N/A',
+                        location: eventDistanceText,
+                        imageUrl: data['imageUrl'] as String? ?? '',
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -2089,8 +2077,10 @@ class _DemoHomePageState extends State<DemoHomePage> {
                             },
                             child: _TempleCard(
                               title: org.name,
-                              distance: distanceText,
-                              location: org.locationName,
+                              distance: org.locationName,
+                              location: distanceText != 'N/A'
+                                  ? '$distanceText away'
+                                  : 'Distance N/A',
                               imageUrl: org.imageUrl,
                             ),
                           ),
@@ -2099,6 +2089,20 @@ class _DemoHomePageState extends State<DemoHomePage> {
                         final doc2 = item['doc'] as QueryDocumentSnapshot;
                         final data = doc2.data() as Map<String, dynamic>;
                         final eventId = doc2.id;
+                        final eventLocation = data['location'] as String? ?? '';
+                        final rawEventPin = data['locationPin'];
+                        String eventDistanceText = 'Calculating...';
+                        if (_currentPosition != null &&
+                            rawEventPin is GeoPoint) {
+                          final meters = Geolocator.distanceBetween(
+                            _currentPosition!.latitude,
+                            _currentPosition!.longitude,
+                            rawEventPin.latitude,
+                            rawEventPin.longitude,
+                          );
+                          eventDistanceText =
+                              '${(meters / 1000).toStringAsFixed(1)} km away';
+                        }
                         return Padding(
                           padding: const EdgeInsets.only(right: 20, bottom: 20),
                           child: GestureDetector(
@@ -2109,11 +2113,19 @@ class _DemoHomePageState extends State<DemoHomePage> {
                                   builder: (_) => EventDetailScreen(
                                     eventId: eventId,
                                     eventData: data,
+                                    currentPosition: _currentPosition,
                                   ),
                                 ),
                               );
                             },
-                            child: _buildEventCard(data),
+                            child: _TempleCard(
+                              title: data['title'] ?? data['name'] ?? 'Event',
+                              distance: eventLocation.isNotEmpty
+                                  ? eventLocation
+                                  : 'Location N/A',
+                              location: eventDistanceText,
+                              imageUrl: data['imageUrl'] as String? ?? '',
+                            ),
                           ),
                         );
                       }
@@ -2156,10 +2168,9 @@ class _CategoryItem extends StatelessWidget {
               child: Image.asset(
                 imageAsset,
                 fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) =>
-                    const Center(
-                      child: Icon(Icons.category, color: Colors.grey),
-                    ),
+                errorBuilder: (context, error, stackTrace) => const Center(
+                  child: Icon(Icons.category, color: Colors.grey),
+                ),
               ),
             ),
             const SizedBox(height: 8),
@@ -2302,7 +2313,7 @@ class _TempleCard extends StatelessWidget {
                             ),
                           ],
                         ),
-                        // Light green track pill matching user design images identically
+                        // Red-tinted pill matching event card style
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
@@ -2310,8 +2321,8 @@ class _TempleCard extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: const Color(
-                              0xFFE8F5E9,
-                            ).withValues(alpha: 0.8), // subtle glassy child
+                              0xFFFFEBEE,
+                            ).withValues(alpha: 0.9),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(color: Colors.white, width: 0.5),
                           ),
@@ -2322,9 +2333,9 @@ class _TempleCard extends StatelessWidget {
                                 child: Row(
                                   children: [
                                     const Icon(
-                                      Icons.location_on_rounded,
+                                      Icons.location_on_outlined,
                                       size: 16,
-                                      color: Colors.black87,
+                                      color: Color(0xFFB71C1C),
                                     ),
                                     const SizedBox(width: 4),
                                     Expanded(
@@ -2350,7 +2361,7 @@ class _TempleCard extends StatelessWidget {
                                   vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF24963F),
+                                  color: const Color(0xFFB71C1C),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: const Text(
@@ -2422,9 +2433,7 @@ class _BottomNavItem extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(isActive ? activeIcon : icon,
-                color: Colors.white,
-                size: 26),
+            Icon(isActive ? activeIcon : icon, color: Colors.white, size: 26),
             AnimatedSize(
               duration: const Duration(milliseconds: 350),
               curve: Curves.easeOutCubic,

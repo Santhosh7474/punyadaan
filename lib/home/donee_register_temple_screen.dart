@@ -45,6 +45,7 @@ class _DoneeRegisterTempleScreenState extends State<DoneeRegisterTempleScreen> {
   final TextEditingController _locationController = TextEditingController();
   File? _selectedImage;
   bool _detectingLocation = false;
+  GeoPoint? _detectedGeoPoint; // Cached GPS coords for locationPin
 
   final ImagePicker _picker = ImagePicker();
 
@@ -110,7 +111,11 @@ class _DoneeRegisterTempleScreenState extends State<DoneeRegisterTempleScreen> {
           p.locality,
           p.administrativeArea,
         ].where((s) => s != null && s.isNotEmpty).join(', ');
-        setState(() => _locationController.text = parts);
+        setState(() {
+          _locationController.text = parts;
+          // Cache the GPS point so submit can save it
+          _detectedGeoPoint = GeoPoint(pos.latitude, pos.longitude);
+        });
       }
     } catch (e) {
       if (mounted) {
@@ -183,15 +188,34 @@ class _DoneeRegisterTempleScreenState extends State<DoneeRegisterTempleScreen> {
 
       final imageUrl = json.decode(responseData)['secure_url'];
 
+      // Geocode the location text → GeoPoint for distance calculations
+      GeoPoint? geoPoint = _detectedGeoPoint;
+      if (geoPoint == null) {
+        try {
+          final locations = await locationFromAddress(
+            _locationController.text.trim(),
+          );
+          if (locations.isNotEmpty) {
+            geoPoint = GeoPoint(
+              locations.first.latitude,
+              locations.first.longitude,
+            );
+          }
+        } catch (_) {
+          // Geocoding failed — save without GeoPoint
+        }
+      }
+
       await FirebaseFirestore.instance.collection('organizations').add({
         'name': _nameController.text.trim(),
         'description': _descController.text.trim(),
         'locationName': _locationController.text.trim(),
         'category': _firestoreCategory,
         'imageUrl': imageUrl,
-        'status': 'waiting',
+        'status': 'pending',
         'doneeId': user.uid,
         'createdAt': FieldValue.serverTimestamp(),
+        'locationPin': geoPoint,
       });
 
       navigator.pop(); // hide loader

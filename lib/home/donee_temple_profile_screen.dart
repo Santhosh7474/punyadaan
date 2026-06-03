@@ -9,7 +9,9 @@ class DoneeTempleProfileScreen extends StatelessWidget {
 
   const DoneeTempleProfileScreen({super.key, required this.organization});
 
-  static const primaryGreen = Color(0xFF24963F);
+  static const primaryRed  = Color(0xFFB71C1C);
+  static const darkBrown   = Color(0xFF5C4033);
+  static const pillYellow  = Color(0xFFF0A500);
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +40,10 @@ class DoneeTempleProfileScreen extends StatelessWidget {
                     gradient: LinearGradient(
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
-                      colors: [Colors.black.withValues(alpha: 0.8), Colors.transparent],
+                      colors: [
+                        Colors.black.withValues(alpha: 0.8),
+                        Colors.transparent,
+                      ],
                     ),
                   ),
                 ),
@@ -55,22 +60,33 @@ class DoneeTempleProfileScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: organization.status == 'approved'
-                                  ? primaryGreen.withValues(alpha: 0.9)
-                                  : Colors.orange.withValues(alpha: 0.9),
+                                  ? const Color(0xFF388E3C).withValues(alpha: 0.9)
+                                  : pillYellow.withValues(alpha: 0.9),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
                               organization.status?.toUpperCase() ?? 'WAITING',
-                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             organization.name,
-                            style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.white),
+                            style: const TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFFB71C1C),
+                            ),
                           ),
                         ],
                       ),
@@ -89,12 +105,20 @@ class DoneeTempleProfileScreen extends StatelessWidget {
                 // Location
                 Row(
                   children: [
-                    const Icon(Icons.location_on, size: 16, color: Colors.redAccent),
+                    const Icon(
+                      Icons.location_on,
+                      size: 16,
+                      color: pillYellow,
+                    ),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         organization.locationName,
-                        style: TextStyle(fontSize: 14, color: Colors.grey.shade700, fontWeight: FontWeight.w600),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF5C4033),
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ],
@@ -103,11 +127,22 @@ class DoneeTempleProfileScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // About
-                const Text('About', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
+                const Text(
+                  'About',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFB71C1C),
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Text(
                   organization.description,
-                  style: TextStyle(fontSize: 15, color: Colors.grey.shade800, height: 1.5),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: Color(0xFF5C4033),
+                    height: 1.5,
+                  ),
                 ),
 
                 const SizedBox(height: 32),
@@ -130,18 +165,37 @@ class DoneeTempleProfileScreen extends StatelessWidget {
                     }
                     return Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
                       decoration: BoxDecoration(
-                        color: primaryGreen.withValues(alpha: 0.08),
+                        color: Color(0xFFB71C1C).withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: primaryGreen.withValues(alpha: 0.2)),
+                        border: Border.all(
+                          color: Color(0xFFB71C1C).withValues(alpha: 0.2),
+                        ),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          _statItem(Icons.account_balance_wallet_rounded, '₹${total.toStringAsFixed(0)}', 'Total Received'),
-                          Container(width: 1, height: 36, color: primaryGreen.withValues(alpha: 0.2)),
-                          _statItem(Icons.people_alt_rounded, '$count', 'Donors'),
+                          _statItem(
+                            Icons.account_balance_wallet_rounded,
+                            '₹${total.toStringAsFixed(0)}',
+                            'Total Received',
+                            primaryRed,
+                          ),
+                          Container(
+                            width: 1,
+                            height: 36,
+                            color: Color(0xFFB71C1C).withValues(alpha: 0.2),
+                          ),
+                          _statItem(
+                            Icons.people_alt_rounded,
+                            '$count',
+                            'Donors',
+                            const Color(0xFF5C4033),
+                          ),
                         ],
                       ),
                     );
@@ -156,11 +210,21 @@ class DoneeTempleProfileScreen extends StatelessWidget {
                     children: [
                       Text(
                         'Your ${_categoryDisplayName(organization.category)} QR Code',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFB71C1C),
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 4),
-                      Text('Donators can scan this to view and donate', style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
+                      const Text(
+                        'Donators can scan this to view and donate',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF5C4033),
+                        ),
+                      ),
                       const SizedBox(height: 16),
                       Container(
                         padding: const EdgeInsets.all(16),
@@ -169,12 +233,17 @@ class DoneeTempleProfileScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(color: Colors.grey.shade200),
                           boxShadow: [
-                            BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
                           ],
                         ),
                         child: organization.status == 'approved'
                             ? QrImageView(
-                                data: 'https://punyadaan-e0972.web.app/org/${organization.id}',
+                                data:
+                                    'https://punyadaan-e0972.web.app/org/${organization.id}',
                                 version: QrVersions.auto,
                                 size: 200.0,
                                 backgroundColor: Colors.white,
@@ -183,7 +252,11 @@ class DoneeTempleProfileScreen extends StatelessWidget {
                                 height: 200,
                                 width: 200,
                                 alignment: Alignment.center,
-                                child: const Text('QR Code hidden until approved', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
+                                child: const Text(
+                                  'QR Code hidden until approved',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Colors.grey),
+                                ),
                               ),
                       ),
                     ],
@@ -193,7 +266,14 @@ class DoneeTempleProfileScreen extends StatelessWidget {
                 const SizedBox(height: 40),
 
                 // ── Real Transactions ──────────────────────────────────
-                const Text('Recent Transactions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
+                const Text(
+                  'Recent Transactions',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFB71C1C),
+                  ),
+                ),
                 const SizedBox(height: 16),
 
                 StreamBuilder<QuerySnapshot>(
@@ -203,7 +283,9 @@ class DoneeTempleProfileScreen extends StatelessWidget {
                       .snapshots(),
                   builder: (context, snap) {
                     if (snap.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator(color: primaryGreen));
+                      return const Center(
+                        child: CircularProgressIndicator(color: primaryRed),
+                      );
                     }
 
                     if (!snap.hasData || snap.data!.docs.isEmpty) {
@@ -217,11 +299,27 @@ class DoneeTempleProfileScreen extends StatelessWidget {
                         ),
                         child: Column(
                           children: [
-                            Icon(Icons.inbox_rounded, size: 48, color: Colors.grey.shade300),
+                            Icon(
+                              Icons.inbox_rounded,
+                              size: 48,
+                              color: Colors.grey.shade300,
+                            ),
                             const SizedBox(height: 12),
-                            Text('No donations yet', style: TextStyle(color: Colors.grey.shade500, fontWeight: FontWeight.w600)),
+                            Text(
+                              'No donations yet',
+                              style: TextStyle(
+                                color: Colors.grey.shade500,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                             const SizedBox(height: 4),
-                            Text('Donations will appear here in real-time', style: TextStyle(color: Colors.grey.shade400, fontSize: 12)),
+                            Text(
+                              'Donations will appear here in real-time',
+                              style: TextStyle(
+                                color: Colors.grey.shade400,
+                                fontSize: 12,
+                              ),
+                            ),
                           ],
                         ),
                       );
@@ -230,8 +328,12 @@ class DoneeTempleProfileScreen extends StatelessWidget {
                     // Sort client-side newest first (no composite index needed)
                     final docs = List.from(snap.data!.docs)
                       ..sort((a, b) {
-                        final aTs = (a.data() as Map<String, dynamic>)['createdAt'] as Timestamp?;
-                        final bTs = (b.data() as Map<String, dynamic>)['createdAt'] as Timestamp?;
+                        final aTs =
+                            (a.data() as Map<String, dynamic>)['createdAt']
+                                as Timestamp?;
+                        final bTs =
+                            (b.data() as Map<String, dynamic>)['createdAt']
+                                as Timestamp?;
                         if (aTs == null && bTs == null) return 0;
                         if (aTs == null) return 1;
                         if (bTs == null) return -1;
@@ -258,9 +360,11 @@ class DoneeTempleProfileScreen extends StatelessWidget {
                           } else if (diff.inDays < 1) {
                             dateStr = '${diff.inHours}h ago';
                           } else if (diff.inDays == 1) {
-                            dateStr = 'Yesterday, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+                            dateStr =
+                                'Yesterday, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
                           } else {
-                            dateStr = '${dt.day} ${_month(dt.month)}, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+                            dateStr =
+                                '${dt.day} ${_month(dt.month)}, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
                           }
                         }
 
@@ -272,7 +376,11 @@ class DoneeTempleProfileScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(color: Colors.grey.shade100),
                             boxShadow: [
-                              BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 3)),
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.03),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
                             ],
                           ),
                           child: Row(
@@ -280,10 +388,18 @@ class DoneeTempleProfileScreen extends StatelessWidget {
                               // Avatar
                               CircleAvatar(
                                 radius: 22,
-                                backgroundColor: primaryGreen.withValues(alpha: 0.1),
-                                backgroundImage: photoUrl.isNotEmpty ? NetworkImage(photoUrl) : null,
+                                backgroundColor: primaryRed.withValues(
+                                  alpha: 0.1,
+                                ),
+                                backgroundImage: photoUrl.isNotEmpty
+                                    ? NetworkImage(photoUrl)
+                                    : null,
                                 child: photoUrl.isEmpty
-                                    ? const Icon(Icons.person_rounded, color: primaryGreen, size: 22)
+                                    ? const Icon(
+                                        Icons.person_rounded,
+                                        color: primaryRed,
+                                        size: 22,
+                                      )
                                     : null,
                               ),
                               const SizedBox(width: 14),
@@ -291,15 +407,32 @@ class DoneeTempleProfileScreen extends StatelessWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(donorName, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Colors.black87)),
+                                    Text(
+                                      donorName,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 15,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
                                     const SizedBox(height: 3),
-                                    Text(dateStr, style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+                                    Text(
+                                      dateStr,
+                                      style: TextStyle(
+                                        color: Colors.grey.shade500,
+                                        fontSize: 12,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
                               Text(
                                 '+₹${amount.toStringAsFixed(0)}',
-                                style: const TextStyle(color: primaryGreen, fontWeight: FontWeight.w800, fontSize: 16),
+                                style: const TextStyle(
+                                  color: primaryRed,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 16,
+                                ),
                               ),
                             ],
                           ),
@@ -316,20 +449,52 @@ class DoneeTempleProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _statItem(IconData icon, String value, String label) {
+  Widget _statItem(
+    IconData icon,
+    String value,
+    String label,
+    Color valueColor,
+  ) {
     return Column(
       children: [
-        Icon(icon, color: primaryGreen, size: 22),
+        Icon(icon, color: pillYellow, size: 22),
         const SizedBox(height: 6),
-        Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.black87)),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: valueColor,
+          ),
+        ),
         const SizedBox(height: 2),
-        Text(label, style: TextStyle(fontSize: 11, color: Colors.grey.shade600, fontWeight: FontWeight.w600)),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 11,
+            color: Color(0xFF5C4033),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ],
     );
   }
 
   String _month(int m) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return months[m - 1];
   }
 

@@ -4,13 +4,21 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'donee_event_detail_screen.dart';
 import 'donee_create_event_screen.dart';
+import 'event_screen.dart'; // Donator event creation form
 
 class DoneeYourEventsScreen extends StatefulWidget {
   /// When [showCreateButton] is true an "+ Create Event" action appears in the
   /// AppBar (used when embedded in the Donator home's Event tab).
-  const DoneeYourEventsScreen({super.key, this.showCreateButton = false});
+  /// Set [isDonator] to true when this screen is used inside the donator home
+  /// so the FAB routes to the correct (donator) event creation form.
+  const DoneeYourEventsScreen({
+    super.key,
+    this.showCreateButton = false,
+    this.isDonator = false,
+  });
 
   final bool showCreateButton;
+  final bool isDonator;
 
   @override
   State<DoneeYourEventsScreen> createState() => _DoneeYourEventsScreenState();
@@ -33,10 +41,13 @@ class _DoneeYourEventsScreenState extends State<DoneeYourEventsScreen> {
     final photoUrl = user?.photoURL;
     const primaryGreen = Color(0xFF24963F);
 
-    // Filtered Stream
+    // Donators save events with 'donatorId'; donees use 'doneeId'
     Query<Map<String, dynamic>> eventsQuery = FirebaseFirestore.instance
         .collection('events')
-        .where('doneeId', isEqualTo: user?.uid ?? '');
+        .where(
+          widget.isDonator ? 'donatorId' : 'doneeId',
+          isEqualTo: user?.uid ?? '',
+        );
 
     if (_selectedFilter != 'All') {
       final fsStatus =
@@ -62,11 +73,27 @@ class _DoneeYourEventsScreenState extends State<DoneeYourEventsScreen> {
           ? Padding(
               padding: const EdgeInsets.only(bottom: 88),
               child: FloatingActionButton.extended(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const _CreateEventPage()),
-                ),
+                onPressed: () {
+                    if (widget.isDonator) {
+                      // Donator → use the donator-specific event creation form
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const Scaffold(
+                            backgroundColor: Color(0xFFF6F8FD),
+                            body: SafeArea(child: EventScreen()),
+                          ),
+                        ),
+                      );
+                    } else {
+                      // Donee → use the donee event creation form
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const _CreateEventPage()),
+                      );
+                    }
+                  },
                 backgroundColor: const Color(0xFFB71C1C),
                 foregroundColor: Colors.white,
                 elevation: 4,

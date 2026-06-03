@@ -7,6 +7,7 @@ import 'package:crypto/crypto.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart' as geo;
 import 'package:image_picker/image_picker.dart';
 
 
@@ -22,7 +23,8 @@ class _DoneeCreateEventScreenState extends State<DoneeCreateEventScreen> {
   final TextEditingController _descController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
-  final String _selectedCategory = 'Temple';
+  // Category is inherited from the donee's approved organization at submit time.
+  // No category picker needed.
   File? _selectedImage;
   // Tracks whether the user has attempted to submit (enables error highlighting)
   bool _hasAttemptedSubmit = false;
@@ -232,6 +234,33 @@ class _DoneeCreateEventScreenState extends State<DoneeCreateEventScreen> {
                     final user = FirebaseAuth.instance.currentUser;
                     if (user == null) throw Exception("User not logged in.");
 
+                    // ── Look up the donee's approved org to get the category ──
+                    final orgQuery = await FirebaseFirestore.instance
+                        .collection('organizations')
+                        .where('doneeId', isEqualTo: user.uid)
+                        .where('status', isEqualTo: 'approved')
+                        .limit(1)
+                        .get();
+
+                    if (orgQuery.docs.isEmpty) {
+                      if (context.mounted) {
+                        Navigator.pop(context); // Hide loader
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'No approved organization found. Get your organization approved first.',
+                            ),
+                            backgroundColor: Color(0xFFB71C1C),
+                          ),
+                        );
+                      }
+                      return;
+                    }
+
+                    final orgData = orgQuery.docs.first.data();
+                    final orgCategory =
+                        orgData['category'] as String? ?? 'Temple';
+
                     String? imageUrl;
 
                     if (_selectedImage != null) {
@@ -276,18 +305,33 @@ class _DoneeCreateEventScreenState extends State<DoneeCreateEventScreen> {
                       }
                     }
 
+                    // Geocode location text → GeoPoint for distance display
+                    GeoPoint? locationPin;
+                    try {
+                      final locs = await geo.locationFromAddress(
+                        _locationController.text.trim(),
+                      );
+                      if (locs.isNotEmpty) {
+                        locationPin = GeoPoint(
+                          locs.first.latitude,
+                          locs.first.longitude,
+                        );
+                      }
+                    } catch (_) {}
+
                     await FirebaseFirestore.instance.collection('events').add({
                       'title': _titleController.text.trim(),
                       'name': _titleController.text
                           .trim(), // Keep 'name' compatible for Admin Dashboard
                       'description': _descController.text.trim(),
                       'location': _locationController.text.trim(),
+                      'locationPin': locationPin,
                       'targetAmount':
                           double.tryParse(_amountController.text) ?? 0,
                       'receivedAmount': 0,
-                      'status':
-                          'pending', // Set exact required status string map
-                      'category': _selectedCategory,
+                      'status': 'pending',
+                      'category': orgCategory, // Inherited from the donee's approved org
+                      'creatorType': 'donee',
                       'doneeId': user.uid,
                       'creatorName': user.displayName ?? 'Donee',
                       'imageUrl': imageUrl,

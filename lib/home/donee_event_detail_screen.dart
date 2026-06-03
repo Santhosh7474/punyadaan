@@ -13,7 +13,10 @@ class DoneeEventDetailScreen extends StatelessWidget {
     required this.eventData,
   });
 
-  static const primaryGreen = Color(0xFF24963F);
+  // ── Brand palette ────────────────────────────────────────────────────
+  static const primaryRed  = Color(0xFFB71C1C);
+  static const darkBrown   = Color(0xFF5C4033);
+  static const pillYellow  = Color(0xFFF0A500);
 
   String _formatRelativeDate(Timestamp? ts) {
     if (ts == null) return 'Just now';
@@ -26,14 +29,21 @@ class DoneeEventDetailScreen extends StatelessWidget {
     if (diff.inDays == 1) {
       return 'Yesterday, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
     }
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return '${dt.day} ${months[dt.month - 1]}, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    return '${dt.day} ${months[dt.month - 1]}, '
+        '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
   }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot>(
-      stream: FirebaseFirestore.instance.collection('events').doc(eventId).snapshots(),
+      stream: FirebaseFirestore.instance
+          .collection('events')
+          .doc(eventId)
+          .snapshots(),
       builder: (context, snapshot) {
         // Use live data from Firestore, fall back to passed-in data
         final data = (snapshot.hasData && snapshot.data!.exists)
@@ -53,21 +63,23 @@ class DoneeEventDetailScreen extends StatelessWidget {
 
         final double target = targetAmount.toDouble();
         final double received = receivedAmount.toDouble();
-        final double progress = target > 0 ? (received / target).clamp(0.0, 1.0) : 0.0;
+        final double progress =
+            target > 0 ? (received / target).clamp(0.0, 1.0) : 0.0;
 
+        // Status badge color
         Color statusColor;
         String statusLabel;
         switch (status.toLowerCase()) {
           case 'approved':
-            statusColor = primaryGreen;
+            statusColor = const Color(0xFF388E3C);
             statusLabel = 'Approved';
             break;
           case 'completed':
-            statusColor = Colors.blue;
+            statusColor = Colors.blue.shade700;
             statusLabel = 'Completed';
             break;
           default:
-            statusColor = Colors.orange;
+            statusColor = pillYellow;
             statusLabel = 'Waiting';
         }
 
@@ -85,6 +97,7 @@ class DoneeEventDetailScreen extends StatelessWidget {
               SliverAppBar(
                 expandedHeight: 300,
                 pinned: true,
+                backgroundColor: primaryRed,
                 iconTheme: const IconThemeData(color: Colors.white),
                 flexibleSpace: FlexibleSpaceBar(
                   background: Stack(
@@ -97,7 +110,9 @@ class DoneeEventDetailScreen extends StatelessWidget {
                               errorBuilder: (ctx, err, stack) => Container(
                                 decoration: const BoxDecoration(
                                   gradient: LinearGradient(
-                                    colors: [primaryGreen, Color(0xFF1E7A33)],
+                                    colors: [primaryRed, Color(0xFF8B0000)],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
                                   ),
                                 ),
                               ),
@@ -105,19 +120,26 @@ class DoneeEventDetailScreen extends StatelessWidget {
                           : Container(
                               decoration: const BoxDecoration(
                                 gradient: LinearGradient(
-                                  colors: [primaryGreen, Color(0xFF1E7A33)],
+                                  colors: [primaryRed, Color(0xFF8B0000)],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
                               ),
-                              child: const Icon(Icons.event_rounded, size: 80, color: Colors.white24),
+                              child: const Icon(
+                                Icons.event_rounded,
+                                size: 80,
+                                color: Colors.white24,
+                              ),
                             ),
                       DecoratedBox(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            colors: [Colors.transparent, Colors.black.withValues(alpha: 0.65)],
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withValues(alpha: 0.65),
+                            ],
                           ),
                         ),
                       ),
@@ -126,12 +148,29 @@ class DoneeEventDetailScreen extends StatelessWidget {
                         bottom: 20,
                         left: 20,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: statusColor,
                             borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: statusColor.withValues(alpha: 0.4),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
                           ),
-                          child: Text(statusLabel, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                          child: Text(
+                            statusLabel,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -146,24 +185,55 @@ class DoneeEventDetailScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // ── Title & Category ────────────────────────────
-                      Text(title, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.black87, height: 1.1)),
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.black87,
+                          height: 1.1,
+                        ),
+                      ),
                       const SizedBox(height: 10),
                       Row(
                         children: [
+                          // Yellow pill for category
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: primaryGreen.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: primaryGreen.withValues(alpha: 0.35)),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
                             ),
-                            child: Text(category.toUpperCase(), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: primaryGreen)),
+                            decoration: BoxDecoration(
+                              color: pillYellow.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: pillYellow.withValues(alpha: 0.45),
+                              ),
+                            ),
+                            child: Text(
+                              category.toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: pillYellow,
+                              ),
+                            ),
                           ),
                           if (createdOn.isNotEmpty) ...[
                             const SizedBox(width: 12),
-                            Icon(Icons.calendar_today_rounded, size: 13, color: Colors.grey.shade500),
+                            Icon(
+                              Icons.calendar_today_rounded,
+                              size: 13,
+                              color: Colors.grey.shade500,
+                            ),
                             const SizedBox(width: 4),
-                            Text('Created $createdOn', style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                            Text(
+                              'Created $createdOn',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
                           ],
                         ],
                       ),
@@ -175,32 +245,52 @@ class DoneeEventDetailScreen extends StatelessWidget {
                         width: double.infinity,
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [primaryGreen.withValues(alpha: 0.9), const Color(0xFF1E7A33).withValues(alpha: 0.9)],
+                          gradient: const LinearGradient(
+                            colors: [primaryRed, Color(0xFF8B0000)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(20),
-                          boxShadow: [BoxShadow(color: primaryGreen.withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6))],
+                          boxShadow: [
+                            BoxShadow(
+                              color: primaryRed.withValues(alpha: 0.35),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Funds Raised', style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600)),
+                            const Text(
+                              'Funds Raised',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                             const SizedBox(height: 4),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
                                   '₹${received.toStringAsFixed(0)}',
-                                  style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.w900,
+                                  ),
                                 ),
                                 const SizedBox(width: 8),
                                 Padding(
                                   padding: const EdgeInsets.only(bottom: 4),
                                   child: Text(
                                     'of ₹${target.toStringAsFixed(0)}',
-                                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 14,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -211,14 +301,21 @@ class DoneeEventDetailScreen extends StatelessWidget {
                               child: LinearProgressIndicator(
                                 value: progress,
                                 minHeight: 8,
-                                backgroundColor: Colors.white.withValues(alpha: 0.25),
-                                valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                                backgroundColor:
+                                    Colors.white.withValues(alpha: 0.25),
+                                valueColor:
+                                    const AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
                               ),
                             ),
                             const SizedBox(height: 8),
                             Text(
                               '${(progress * 100).toStringAsFixed(0)}% of goal reached',
-                              style: const TextStyle(color: Colors.white70, fontSize: 12),
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
                             ),
                           ],
                         ),
@@ -229,29 +326,63 @@ class DoneeEventDetailScreen extends StatelessWidget {
                       // ── Info Grid ───────────────────────────────────
                       Row(
                         children: [
-                          _infoCard(Icons.location_on_rounded, location.isNotEmpty ? location : 'Not specified', 'Location'),
+                          _infoCard(
+                            Icons.location_on_rounded,
+                            location.isNotEmpty ? location : 'Not specified',
+                            'Location',
+                          ),
                           const SizedBox(width: 12),
-                          _infoCard(Icons.event_rounded, date.isNotEmpty ? date : 'Not set', 'Event Date'),
+                          _infoCard(
+                            Icons.event_rounded,
+                            date.isNotEmpty ? date : 'Not set',
+                            'Event Date',
+                          ),
                         ],
                       ),
 
                       const SizedBox(height: 28),
 
                       // ── Description ─────────────────────────────────
-                      const Text('About this Event', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
+                      const Text(
+                        'About this Event',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: primaryRed,
+                        ),
+                      ),
                       const SizedBox(height: 10),
                       Text(
-                        description.isNotEmpty ? description : 'No description provided.',
-                        style: TextStyle(fontSize: 15, color: Colors.grey.shade800, height: 1.6),
+                        description.isNotEmpty
+                            ? description
+                            : 'No description provided.',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: darkBrown,
+                          height: 1.6,
+                        ),
                       ),
 
                       const SizedBox(height: 32),
 
                       // ── QR Code ─────────────────────────────────────
                       if (status.toLowerCase() == 'approved') ...[
-                        const Text('Event QR Code', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
+                        const Text(
+                          'Event QR Code',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: primaryRed,
+                          ),
+                        ),
                         const SizedBox(height: 4),
-                        Text('Donators can scan this to donate directly', style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                        Text(
+                          'Donators can scan this to donate directly',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
                         const SizedBox(height: 14),
                         Center(
                           child: Container(
@@ -260,10 +391,17 @@ class DoneeEventDetailScreen extends StatelessWidget {
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(color: Colors.grey.shade200),
-                              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.04),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
                             child: QrImageView(
-                              data: 'https://punyadaan-e0972.web.app/event/$eventId',
+                              data:
+                                  'https://punyadaan-e0972.web.app/event/$eventId',
                               version: QrVersions.auto,
                               size: 180.0,
                               backgroundColor: Colors.white,
@@ -274,9 +412,19 @@ class DoneeEventDetailScreen extends StatelessWidget {
                       ],
 
                       // ── Donations Received (Donee-only) ─────────────
-                      const Text('Donations Received', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
+                      const Text(
+                        'Donations Received',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: primaryRed,
+                        ),
+                      ),
                       const SizedBox(height: 4),
-                      Text('Real-time donor activity for this event', style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                      const Text(
+                        'Real-time donor activity for this event',
+                        style: TextStyle(fontSize: 12, color: darkBrown),
+                      ),
                       const SizedBox(height: 14),
 
                       StreamBuilder<QuerySnapshot>(
@@ -285,26 +433,50 @@ class DoneeEventDetailScreen extends StatelessWidget {
                             .where('eventId', isEqualTo: eventId)
                             .snapshots(),
                         builder: (context, snap) {
-                          if (snap.connectionState == ConnectionState.waiting) {
-                            return const Center(child: CircularProgressIndicator(color: primaryGreen));
+                          if (snap.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(
+                                color: primaryRed,
+                              ),
+                            );
                           }
 
                           if (!snap.hasData || snap.data!.docs.isEmpty) {
                             return Container(
                               width: double.infinity,
-                              padding: const EdgeInsets.symmetric(vertical: 32),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 32),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: Colors.grey.shade100),
+                                border: Border.all(
+                                  color: Colors.grey.shade100,
+                                ),
                               ),
                               child: Column(
                                 children: [
-                                  Icon(Icons.inbox_rounded, size: 48, color: Colors.grey.shade300),
+                                  Icon(
+                                    Icons.inbox_rounded,
+                                    size: 48,
+                                    color: Colors.grey.shade300,
+                                  ),
                                   const SizedBox(height: 12),
-                                  Text('No donations yet', style: TextStyle(color: Colors.grey.shade500, fontWeight: FontWeight.w600)),
+                                  Text(
+                                    'No donations yet',
+                                    style: TextStyle(
+                                      color: Colors.grey.shade500,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                   const SizedBox(height: 4),
-                                  Text('Donations appear here in real-time', style: TextStyle(color: Colors.grey.shade400, fontSize: 12)),
+                                  Text(
+                                    'Donations appear here in real-time',
+                                    style: TextStyle(
+                                      color: Colors.grey.shade400,
+                                      fontSize: 12,
+                                    ),
+                                  ),
                                 ],
                               ),
                             );
@@ -313,8 +485,14 @@ class DoneeEventDetailScreen extends StatelessWidget {
                           // Client-side sort newest first
                           final docs = List.from(snap.data!.docs)
                             ..sort((a, b) {
-                              final aTs = (a.data() as Map<String, dynamic>)['createdAt'] as Timestamp?;
-                              final bTs = (b.data() as Map<String, dynamic>)['createdAt'] as Timestamp?;
+                              final aTs =
+                                  (a.data() as Map<String, dynamic>)[
+                                        'createdAt'
+                                      ] as Timestamp?;
+                              final bTs =
+                                  (b.data() as Map<String, dynamic>)[
+                                        'createdAt'
+                                      ] as Timestamp?;
                               if (aTs == null && bTs == null) return 0;
                               if (aTs == null) return 1;
                               if (bTs == null) return -1;
@@ -323,11 +501,16 @@ class DoneeEventDetailScreen extends StatelessWidget {
 
                           return Column(
                             children: docs.map((doc) {
-                              final d = doc.data() as Map<String, dynamic>;
-                              final donorName = d['donatorName'] ?? 'Anonymous';
+                              final d =
+                                  doc.data() as Map<String, dynamic>;
+                              final donorName =
+                                  d['donatorName'] ?? 'Anonymous';
                               final amount = (d['amount'] ?? 0) as num;
-                              final photoUrl = d['donatorPhoto'] as String? ?? '';
-                              final dateStr = _formatRelativeDate(d['createdAt'] as Timestamp?);
+                              final photoUrl =
+                                  d['donatorPhoto'] as String? ?? '';
+                              final dateStr = _formatRelativeDate(
+                                d['createdAt'] as Timestamp?,
+                              );
 
                               return Container(
                                 margin: const EdgeInsets.only(bottom: 12),
@@ -335,31 +518,70 @@ class DoneeEventDetailScreen extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: Colors.grey.shade100),
-                                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 3))],
+                                  border: Border.all(
+                                    color: Colors.grey.shade100,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.03,
+                                      ),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
                                 ),
                                 child: Row(
                                   children: [
                                     CircleAvatar(
                                       radius: 22,
-                                      backgroundColor: primaryGreen.withValues(alpha: 0.1),
-                                      backgroundImage: photoUrl.isNotEmpty ? NetworkImage(photoUrl) : null,
-                                      child: photoUrl.isEmpty ? const Icon(Icons.person_rounded, color: primaryGreen, size: 22) : null,
+                                      backgroundColor: primaryRed.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                      backgroundImage:
+                                          photoUrl.isNotEmpty
+                                              ? NetworkImage(photoUrl)
+                                              : null,
+                                      child: photoUrl.isEmpty
+                                          ? const Icon(
+                                              Icons.person_rounded,
+                                              color: primaryRed,
+                                              size: 22,
+                                            )
+                                          : null,
                                     ),
                                     const SizedBox(width: 14),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Text(donorName, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Colors.black87)),
+                                          Text(
+                                            donorName,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 15,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
                                           const SizedBox(height: 3),
-                                          Text(dateStr, style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+                                          Text(
+                                            dateStr,
+                                            style: TextStyle(
+                                              color: Colors.grey.shade500,
+                                              fontSize: 12,
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),
                                     Text(
                                       '+₹${amount.toStringAsFixed(0)}',
-                                      style: const TextStyle(color: primaryGreen, fontWeight: FontWeight.w800, fontSize: 16),
+                                      style: const TextStyle(
+                                        color: primaryRed,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 16,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -389,16 +611,34 @@ class DoneeEventDetailScreen extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.grey.shade100),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 3))],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: primaryGreen, size: 20),
+            Icon(icon, color: pillYellow, size: 20),
             const SizedBox(height: 8),
-            Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.black87), maxLines: 2, overflow: TextOverflow.ellipsis),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
             const SizedBox(height: 2),
-            Text(label, style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 11, color: darkBrown),
+            ),
           ],
         ),
       ),

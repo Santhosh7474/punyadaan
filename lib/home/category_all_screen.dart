@@ -29,15 +29,20 @@ class _CategoryAllScreenState extends State<CategoryAllScreen> {
   @override
   void initState() {
     super.initState();
-    _orgStream = FirebaseFirestore.instance
-        .collection('organizations')
-        .where('status', isEqualTo: 'approved')
-        .where('category', whereIn: [widget.category, widget.category.toLowerCase()])
-        .snapshots();
+    // For the 'donator_event' category there are no organizations — only events.
+    if (widget.category == 'donator_event') {
+      _orgStream = const Stream.empty();
+    } else {
+      _orgStream = FirebaseFirestore.instance
+          .collection('organizations')
+          .where('status', isEqualTo: 'approved')
+          .where('category', whereIn: [widget.category, widget.category.toLowerCase()])
+          .snapshots();
+    }
     _eventStream = FirebaseFirestore.instance
         .collection('events')
         .where('status', isEqualTo: 'approved')
-        .where('category', whereIn: [widget.category, widget.category.toLowerCase()])
+        .where('category', isEqualTo: widget.category)
         .snapshots();
   }
 

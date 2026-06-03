@@ -105,14 +105,17 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
     setState(() => _isSubmitting = true);
 
     try {
-      // 1. Geocode the location string securely
+      // 1. Geocode the location string — best-effort, reuse existing pin if it fails
       final locationText = _locationController.text.trim();
-      List<Location> locations = await locationFromAddress(locationText);
-      if (locations.isEmpty) {
-        throw Exception("Could not find geographic coordinates for that location name.");
+      GeoPoint? geoPoint;
+      try {
+        List<Location> locations = await locationFromAddress(locationText);
+        if (locations.isNotEmpty) {
+          geoPoint = GeoPoint(locations.first.latitude, locations.first.longitude);
+        }
+      } catch (_) {
+        // Geocoding failed (e.g. ambiguous address). Keep the existing pin.
       }
-      
-      final GeoPoint geoPoint = GeoPoint(locations.first.latitude, locations.first.longitude);
 
       // 2. Resolve image explicitly
       String imageUrl = _existingImageUrl ?? '';
@@ -127,9 +130,12 @@ class _AddOrganizationScreenState extends State<AddOrganizationScreen> {
         'locationName': locationText,
         'imageUrl': imageUrl,
         'description': _descriptionController.text.trim(),
-        'locationPin': geoPoint,
         'status': 'approved',
       };
+      // Only write locationPin if we resolved a valid one
+      if (geoPoint != null) {
+        payload['locationPin'] = geoPoint;
+      }
 
       if (widget.existingOrg != null) {
         // Edit mode! Update document without altering created trace manually

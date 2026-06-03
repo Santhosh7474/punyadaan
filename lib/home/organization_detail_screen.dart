@@ -22,7 +22,8 @@ class OrganizationDetailScreen extends StatefulWidget {
 }
 
 class _OrganizationDetailScreenState extends State<OrganizationDetailScreen> {
-  static const primaryGreen = Color(0xFF24963F);
+  static const primaryRed  = Color(0xFFB71C1C);
+  static const darkBrown   = Color(0xFF5C4033);
 
   // ── Glassmorphic Donation Dialog ─────────────────────────────────────────
   Future<void> _showDonationDialog() async {
@@ -102,14 +103,14 @@ class _OrganizationDetailScreenState extends State<OrganizationDetailScreen> {
                           controller: amountCtrl,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           autofocus: true,
-                          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: primaryGreen),
+                          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: primaryRed),
                           decoration: InputDecoration(
                             prefixText: '₹  ',
-                            prefixStyle: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: primaryGreen),
+                            prefixStyle: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: primaryRed),
                             hintText: '0',
                             hintStyle: TextStyle(color: Colors.grey.shade300, fontSize: 28),
                             filled: true,
-                            fillColor: primaryGreen.withValues(alpha: 0.05),
+                            fillColor: primaryRed.withValues(alpha: 0.05),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(16),
                               borderSide: BorderSide.none,
@@ -318,7 +319,7 @@ class _OrganizationDetailScreenState extends State<OrganizationDetailScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Donation failed: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Donation failed: $e'), backgroundColor: const Color(0xFFB71C1C)),
         );
       }
     }
@@ -326,16 +327,6 @@ class _OrganizationDetailScreenState extends State<OrganizationDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String distanceText = 'N/A';
-    if (widget.currentPosition != null && widget.organization.locationPin != null) {
-      double distanceInMeters = Geolocator.distanceBetween(
-        widget.currentPosition!.latitude,
-        widget.currentPosition!.longitude,
-        widget.organization.locationPin!.latitude,
-        widget.organization.locationPin!.longitude,
-      );
-      distanceText = '${(distanceInMeters / 1000).toStringAsFixed(1)} km';
-    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
@@ -344,17 +335,39 @@ class _OrganizationDetailScreenState extends State<OrganizationDetailScreen> {
           SliverAppBar(
             expandedHeight: 320.0,
             pinned: true,
+            backgroundColor: primaryRed,
             flexibleSpace: FlexibleSpaceBar(
               titlePadding: const EdgeInsets.only(left: 16, bottom: 16, right: 16),
               background: Stack(
                 fit: StackFit.expand,
                 children: [
                   widget.organization.imageUrl.startsWith('http')
-                      ? Image.network(widget.organization.imageUrl, fit: BoxFit.cover)
-                      : Image.asset(
+                      ? Image.network(
                           widget.organization.imageUrl,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey.shade300),
+                          errorBuilder: (context, error, stackTrace) => Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [primaryRed, Color(0xFF8B0000)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                            ),
+                          ),
+                        )
+                      : Container(
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [primaryRed, Color(0xFF8B0000)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.account_balance_rounded,
+                            size: 80,
+                            color: Colors.white24,
+                          ),
                         ),
                   DecoratedBox(
                     decoration: BoxDecoration(
@@ -370,7 +383,6 @@ class _OrganizationDetailScreenState extends State<OrganizationDetailScreen> {
             ),
             iconTheme: const IconThemeData(color: Colors.white),
           ),
-
           SliverToBoxAdapter(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20),
@@ -386,7 +398,7 @@ class _OrganizationDetailScreenState extends State<OrganizationDetailScreen> {
                         style: const TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFFB71C1C),
+                            color: Colors.black87,
                             height: 1.1),
                       ),
                     ),
@@ -413,8 +425,8 @@ class _OrganizationDetailScreenState extends State<OrganizationDetailScreen> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Icon(Icons.location_on,
-                          size: 16, color: Color(0xFFF0A500)),
+                      const Icon(Icons.location_on_rounded,
+                          size: 16, color: primaryRed),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
@@ -430,13 +442,127 @@ class _OrganizationDetailScreenState extends State<OrganizationDetailScreen> {
                     ],
                   ),
 
+                  const SizedBox(height: 20),
+
+                  // ── Funds Raised red card (live stream) ─────────────
+                  StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('transactions')
+                        .where('doneeId', isEqualTo: widget.organization.id)
+                        .snapshots(),
+                    builder: (context, snap) {
+                      double total = 0;
+                      int count = 0;
+                      if (snap.hasData) {
+                        for (var doc in snap.data!.docs) {
+                          final d = doc.data() as Map<String, dynamic>;
+                          total += (d['amount'] ?? 0) as num;
+                          count++;
+                        }
+                      }
+
+                      return Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [primaryRed, Color(0xFF8B0000)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: primaryRed.withValues(alpha: 0.35),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Funds Raised',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '₹${total.toStringAsFixed(0)}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 4),
+                                  child: Text(
+                                    'from $count donor${count == 1 ? '' : 's'}',
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 14),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(6),
+                              child: LinearProgressIndicator(
+                                value: count == 0 ? 0.0 : 1.0,
+                                minHeight: 8,
+                                backgroundColor:
+                                    Colors.white.withValues(alpha: 0.25),
+                                valueColor:
+                                    const AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              count == 0
+                                  ? 'Be the first to donate!'
+                                  : '$count donation${count == 1 ? '' : 's'} received',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+
                   const SizedBox(height: 16),
 
+                  // ── Info cards (location + verified) ────────────────
                   Row(
                     children: [
-                      _buildInfoCard(Icons.route, '$distanceText Away', 'From location'),
+                      _buildInfoCard(
+                        Icons.location_on_rounded,
+                        widget.organization.locationName.isNotEmpty
+                            ? widget.organization.locationName
+                            : 'Location N/A',
+                        'Organisation location',
+                      ),
                       const SizedBox(width: 12),
-                      _buildInfoCard(Icons.verified_user, 'Verified', 'Community Trust'),
+                      _buildInfoCard(
+                        Icons.verified_rounded,
+                        'Verified',
+                        'Community Trust',
+                      ),
                     ],
                   ),
 
@@ -446,14 +572,14 @@ class _OrganizationDetailScreenState extends State<OrganizationDetailScreen> {
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFFB71C1C))),
+                          color: primaryRed)),
                   const SizedBox(height: 12),
 
                   Text(
                     widget.organization.description,
                     style: const TextStyle(
                         fontSize: 15,
-                        color: Color(0xFF5C4033),
+                        color: darkBrown,
                         height: 1.5,
                         letterSpacing: 0.2),
                   ),
@@ -464,7 +590,7 @@ class _OrganizationDetailScreenState extends State<OrganizationDetailScreen> {
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFFB71C1C))),
+                          color: primaryRed)),
                   const SizedBox(height: 16),
                   Center(
                     child: Container(
@@ -518,7 +644,8 @@ class _OrganizationDetailScreenState extends State<OrganizationDetailScreen> {
               backgroundColor: const Color(0xFFB71C1C),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18)),
-              elevation: 4,
+              elevation: 6,
+              shadowColor: primaryRed.withValues(alpha: 0.5),
             ),
           ),
         ),
@@ -555,7 +682,7 @@ class _OrganizationDetailScreenState extends State<OrganizationDetailScreen> {
                 overflow: TextOverflow.ellipsis),
             const SizedBox(height: 4),
             Text(subtitle,
-                style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
+                style: const TextStyle(color: darkBrown, fontSize: 11),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis),
           ],

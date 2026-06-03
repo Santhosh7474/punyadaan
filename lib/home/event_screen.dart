@@ -7,6 +7,7 @@ import 'package:crypto/crypto.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart' as geo;
 import 'package:image_picker/image_picker.dart';
 import 'donee_your_events_screen.dart';
 
@@ -28,7 +29,8 @@ class _EventScreenState extends State<EventScreen> {
   final TextEditingController _descController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
-  String _selectedCategory = 'Temple';
+  // Category is now fixed for donator events — always 'donator_event'
+  // No category picker needed.
   File? _selectedImage;
 
   final ImagePicker _picker = ImagePicker();
@@ -57,9 +59,9 @@ class _EventScreenState extends State<EventScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to pick image: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to pick image: $e')));
       }
     }
   }
@@ -88,26 +90,22 @@ class _EventScreenState extends State<EventScreen> {
                 ),
                 ElevatedButton.icon(
                   onPressed: () {
-                    if (widget.onYourEventsTap != null) {
-                      widget.onYourEventsTap!();
-                    } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const DoneeYourEventsScreen()),
-                      );
-                    }
+                    Navigator.pop(context);
                   },
                   icon: const Icon(Icons.list_alt_rounded, size: 18),
-                  label: const Text('Your Events',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  label: const Text(
+                    'Your Events',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        const Color(0xFFB71C1C).withValues(alpha: 0.1),
+                    backgroundColor: const Color(
+                      0xFFB71C1C,
+                    ).withValues(alpha: 0.1),
                     foregroundColor: const Color(0xFFB71C1C),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                   ),
                 ),
               ],
@@ -191,14 +189,22 @@ class _EventScreenState extends State<EventScreen> {
                                 Container(
                                   color: Colors.black12,
                                   alignment: Alignment.center,
-                                  child: const Icon(Icons.edit_rounded, color: Colors.white, size: 36),
+                                  child: const Icon(
+                                    Icons.edit_rounded,
+                                    color: Colors.white,
+                                    size: 36,
+                                  ),
                                 ),
                               ],
                             )
                           : const Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.add_photo_alternate_rounded, size: 48, color: Color(0xFFF0A500)),
+                                Icon(
+                                  Icons.add_photo_alternate_rounded,
+                                  size: 48,
+                                  color: Color(0xFFF0A500),
+                                ),
                                 SizedBox(height: 12),
                                 Text(
                                   'Tap to upload event image',
@@ -223,9 +229,12 @@ class _EventScreenState extends State<EventScreen> {
               height: 56,
               child: ElevatedButton(
                 onPressed: () async {
-                  if (_titleController.text.trim().isEmpty || _amountController.text.trim().isEmpty) {
+                  if (_titleController.text.trim().isEmpty ||
+                      _amountController.text.trim().isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please fill all required fields.')),
+                      const SnackBar(
+                        content: Text('Please fill all required fields.'),
+                      ),
                     );
                     return;
                   }
@@ -233,7 +242,9 @@ class _EventScreenState extends State<EventScreen> {
                   showDialog(
                     context: context,
                     barrierDismissible: false,
-                    builder: (_) => const Center(child: CircularProgressIndicator(color: primaryGreen)),
+                    builder: (_) => const Center(
+                      child: CircularProgressIndicator(color: primaryGreen),
+                    ),
                   );
 
                   try {
@@ -247,22 +258,35 @@ class _EventScreenState extends State<EventScreen> {
                       final cloudName = 'dotlyaqsr';
                       final apiKey = '594354471714585';
                       final apiSecret = 'teR8IfY90hth1VpWge_9Bhoi4k4';
-                      
-                      final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-                      final paramsToSign = 'folder=event_images&timestamp=$timestamp$apiSecret';
-                      final signature = sha1.convert(utf8.encode(paramsToSign)).toString();
 
-                      final uri = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
+                      final timestamp =
+                          DateTime.now().millisecondsSinceEpoch ~/ 1000;
+                      final paramsToSign =
+                          'folder=event_images&timestamp=$timestamp$apiSecret';
+                      final signature = sha1
+                          .convert(utf8.encode(paramsToSign))
+                          .toString();
+
+                      final uri = Uri.parse(
+                        'https://api.cloudinary.com/v1_1/$cloudName/image/upload',
+                      );
                       final request = http.MultipartRequest('POST', uri)
                         ..fields['api_key'] = apiKey
                         ..fields['timestamp'] = timestamp.toString()
                         ..fields['signature'] = signature
                         ..fields['folder'] = 'event_images'
-                        ..files.add(http.MultipartFile.fromBytes('file', bytes, filename: 'event.jpg'));
+                        ..files.add(
+                          http.MultipartFile.fromBytes(
+                            'file',
+                            bytes,
+                            filename: 'event.jpg',
+                          ),
+                        );
 
                       final response = await request.send();
-                      final responseData = await response.stream.bytesToString();
-                      
+                      final responseData = await response.stream
+                          .bytesToString();
+
                       if (response.statusCode == 200) {
                         final jsonMap = json.decode(responseData);
                         imageUrl = jsonMap['secure_url'];
@@ -271,36 +295,51 @@ class _EventScreenState extends State<EventScreen> {
                       }
                     }
 
+                    // Geocode location text → GeoPoint for distance display
+                    GeoPoint? locationPin;
+                    try {
+                      final locs = await geo.locationFromAddress(
+                        _locationController.text.trim(),
+                      );
+                      if (locs.isNotEmpty) {
+                        locationPin = GeoPoint(
+                          locs.first.latitude,
+                          locs.first.longitude,
+                        );
+                      }
+                    } catch (_) {}
+
                     await FirebaseFirestore.instance.collection('events').add({
                       'title': _titleController.text.trim(),
-                      'name': _titleController.text.trim(), // Keep 'name' compatible for Admin Dashboard
+                      'name': _titleController.text
+                          .trim(), // Keep 'name' compatible for Admin Dashboard
                       'description': _descController.text.trim(),
                       'location': _locationController.text.trim(),
-                      'targetAmount': double.tryParse(_amountController.text) ?? 0,
+                      'locationPin': locationPin,
+                      'targetAmount':
+                          double.tryParse(_amountController.text) ?? 0,
                       'receivedAmount': 0,
-                      'status': 'pending', // Set exact required status string map
-                      'category': _selectedCategory,
-                      'doneeId': user.uid,
-                      'creatorName': user.displayName ?? 'Donee',
+                      'status': 'pending',
+                      'category':
+                          'donator_event', // Donator events always go to the Events section
+                      'creatorType': 'donator',
+                      'donatorId': user.uid,
+                      'creatorName': user.displayName ?? 'Donator',
                       'imageUrl': imageUrl,
                       'createdAt': FieldValue.serverTimestamp(),
-                      'date': '${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
+                      'date':
+                          '${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
                     });
 
                     if (context.mounted) {
                       Navigator.pop(context); // Hide loader
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Request submitted successfully!')),
+                        const SnackBar(
+                          content: Text('Request submitted successfully!'),
+                        ),
                       );
-
-                      _titleController.clear();
-                      _descController.clear();
-                      _amountController.clear();
-                      _locationController.clear();
-                      setState(() {
-                        _selectedCategory = 'Temple';
-                        _selectedImage = null;
-                      });
+                      // Pop back to the Your Events list so the user sees the new event
+                      Navigator.pop(context);
                     }
                   } catch (e) {
                     if (context.mounted) {

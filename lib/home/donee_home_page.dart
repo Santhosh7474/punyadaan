@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'donee_temple_tab.dart';
 import 'donee_your_events_screen.dart';
@@ -18,7 +17,8 @@ class DoneeHomePage extends StatefulWidget {
 
 class _DoneeHomePageState extends State<DoneeHomePage> {
   int _currentNavIndex = 0;
-  bool _isSubscribed = false;
+  // Tracks the donee's organization approval status
+  String _orgStatus = 'none'; // 'none' | 'pending' | 'approved'
 
   // ── Dynamic bottom nav tab (changes after org registration) ─────
   String _doneeTabLabel = 'Donee';
@@ -29,21 +29,13 @@ class _DoneeHomePageState extends State<DoneeHomePage> {
   @override
   void initState() {
     super.initState();
-    _checkSubscriptionStatus();
     _listenToOrganization();
-    
+
     // Initialize FCM and request permissions after login
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         FCMService.init();
       }
-    });
-  }
-
-  Future<void> _checkSubscriptionStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _isSubscribed = prefs.getBool('donee_subscribed') ?? false;
     });
   }
 
@@ -61,15 +53,18 @@ class _DoneeHomePageState extends State<DoneeHomePage> {
       if (!mounted) return;
       if (snap.docs.isEmpty) {
         setState(() {
+          _orgStatus = 'none';
           _doneeTabLabel = 'Donee';
           _doneeTabIcon = Icons.account_circle_outlined;
           _doneeTabActiveIcon = Icons.account_circle_rounded;
         });
       } else {
-        final category =
-            snap.docs.first.data()['category'] as String? ?? 'Temple';
+        final data = snap.docs.first.data();
+        final status = data['status'] as String? ?? 'pending';
+        final category = data['category'] as String? ?? 'Temple';
         final info = _categoryInfo(category);
         setState(() {
+          _orgStatus = status;
           _doneeTabLabel = info.label;
           _doneeTabIcon = info.icon;
           _doneeTabActiveIcon = info.activeIcon;
@@ -121,16 +116,8 @@ class _DoneeHomePageState extends State<DoneeHomePage> {
     super.dispose();
   }
 
-  Future<void> _subscribe() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('donee_subscribed', true);
-    setState(() {
-      _isSubscribed = true;
-      _currentNavIndex = 1; // Events tab
-    });
-  }
-
-  void _showSubscriptionDialog() {
+  // ── Show dialog when donee has no registered organization ──────
+  void _showNoOrgDialog() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -145,69 +132,50 @@ class _DoneeHomePageState extends State<DoneeHomePage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              height: 4,
-              width: 40,
-              margin: const EdgeInsets.only(bottom: 24),
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
+            Center(
+              child: Container(
+                height: 4,
+                width: 40,
+                margin: const EdgeInsets.only(bottom: 24),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
             ),
             const Icon(
-              Icons.workspace_premium_rounded,
-              color: Colors.amber,
-              size: 80,
+              Icons.account_balance_rounded,
+              color: Color(0xFFB71C1C),
+              size: 64,
             ),
             const SizedBox(height: 16),
             const Text(
-              'Unlock Extra Features',
+              'Register Your Organization First',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 22,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.5,
               ),
             ),
             const SizedBox(height: 12),
-            const SizedBox(height: 12),
-            RichText(
+            const Text(
+              'You need to register and get your organization approved before you can create events.',
               textAlign: TextAlign.center,
-              text: const TextSpan(
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.black54,
-                  height: 1.5,
-                ),
-                children: [
-                  TextSpan(text: 'Subscribe for '),
-                  TextSpan(
-                    text: '₹100 ',
-                    style: TextStyle(decoration: TextDecoration.lineThrough),
-                  ),
-                  TextSpan(
-                    text: '₹0 (For Free) ',
-                    style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF24963F)),
-                  ),
-                  TextSpan(text: 'to create and manage events. Reach out to more donors easily!'),
-                ],
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.black54,
+                height: 1.5,
               ),
             ),
             const SizedBox(height: 32),
             ElevatedButton(
-              onPressed: () async {
+              onPressed: () {
                 Navigator.pop(context);
-                await _subscribe();
-                if (!context.mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Subscription Successful!'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
+                setState(() => _currentNavIndex = 0); // Go to Donee tab (profile/register)
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF24963F), // donator green
+                backgroundColor: const Color(0xFFB71C1C),
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
@@ -215,9 +183,87 @@ class _DoneeHomePageState extends State<DoneeHomePage> {
                 ),
               ),
               child: const Text(
-                'Subscribe',
+                'Go to Register',
                 style: TextStyle(
                   color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Show dialog when org is registered but pending admin approval ─
+  void _showOrgPendingDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                height: 4,
+                width: 40,
+                margin: const EdgeInsets.only(bottom: 24),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const Icon(
+              Icons.hourglass_top_rounded,
+              color: Color(0xFFF0A500),
+              size: 64,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Approval Pending',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.5,
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Your organization is awaiting admin approval. The Events page will be unlocked once approved.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.black54,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 32),
+            OutlinedButton(
+              onPressed: () => Navigator.pop(context),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                side: const BorderSide(color: Color(0xFFF0A500), width: 1.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: const Text(
+                'OK, Got It',
+                style: TextStyle(
+                  color: Color(0xFFF0A500),
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -290,10 +336,12 @@ class _DoneeHomePageState extends State<DoneeHomePage> {
                         label: 'Events',
                         isActive: _currentNavIndex == 1,
                         onTap: () {
-                          if (_isSubscribed) {
+                          if (_orgStatus == 'approved') {
                             setState(() => _currentNavIndex = 1);
+                          } else if (_orgStatus == 'pending') {
+                            _showOrgPendingDialog();
                           } else {
-                            _showSubscriptionDialog();
+                            _showNoOrgDialog();
                           }
                         },
                       ),
