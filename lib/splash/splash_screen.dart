@@ -45,12 +45,14 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
+      body: Align(
+        alignment: Alignment.bottomCenter,
         child: Lottie.asset(
           'assets/animations/splash_animation.json',
           controller: _controller,
           onLoaded: _onLottieLoaded,
-          fit: BoxFit.cover,
+          width: MediaQuery.of(context).size.width,
+          fit: BoxFit.fitWidth,
         ),
       ),
     );

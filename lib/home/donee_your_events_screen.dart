@@ -58,6 +58,7 @@ class _DoneeYourEventsScreenState extends State<DoneeYourEventsScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           'Your Events',
           style: TextStyle(
@@ -74,26 +75,27 @@ class _DoneeYourEventsScreenState extends State<DoneeYourEventsScreen> {
               padding: const EdgeInsets.only(bottom: 88),
               child: FloatingActionButton.extended(
                 onPressed: () {
-                    if (widget.isDonator) {
-                      // Donator → use the donator-specific event creation form
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const Scaffold(
-                            backgroundColor: Color(0xFFF6F8FD),
-                            body: SafeArea(child: EventScreen()),
-                          ),
+                  if (widget.isDonator) {
+                    // Donator → use the donator-specific event creation form
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const Scaffold(
+                          backgroundColor: Color(0xFFF6F8FD),
+                          body: SafeArea(child: EventScreen()),
                         ),
-                      );
-                    } else {
-                      // Donee → use the donee event creation form
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const _CreateEventPage()),
-                      );
-                    }
-                  },
+                      ),
+                    );
+                  } else {
+                    // Donee → use the donee event creation form
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const _CreateEventPage(),
+                      ),
+                    );
+                  }
+                },
                 backgroundColor: const Color(0xFFB71C1C),
                 foregroundColor: Colors.white,
                 elevation: 4,
@@ -556,12 +558,12 @@ class _DoneeYourEventsScreenState extends State<DoneeYourEventsScreen> {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      const Icon(
-                        Icons.currency_rupee_rounded,
-                        size: 20,
-                        color: Color(0xFF24963F),
+                      Image.asset(
+                        'assets/home/coin.png',
+                        width: 45,
+                        height: 45,
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           amount,

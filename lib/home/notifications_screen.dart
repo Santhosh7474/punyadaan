@@ -17,20 +17,43 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  static const _primaryGreen = Color(0xFF24963F);
+  static const _primaryRed = Color(0xFFB71C1C);
+  static const _deepRed = Color(0xFF7B0000);
+  static const _amber = Color(0xFFF0A500);
 
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8FD),
+      extendBodyBehindAppBar: true,
+      backgroundColor: const Color(0xFFF8F0EE),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        foregroundColor: Colors.black87,
+        foregroundColor: Colors.white,
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    _primaryRed.withValues(alpha: 0.92),
+                    _deepRed.withValues(alpha: 0.92),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+            ),
+          ),
+        ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.white,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -38,7 +61,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           style: TextStyle(
             fontWeight: FontWeight.w800,
             fontSize: 20,
-            color: Colors.black87,
+            color: Colors.white,
           ),
         ),
         centerTitle: true,
@@ -51,55 +74,69 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: _primaryGreen,
+                  color: _amber,
                 ),
               ),
             ),
         ],
       ),
-      body: user == null
-          ? const Center(child: Text('Please log in to see notifications.'))
-          : StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('users')
-                  .doc(user.uid)
-                  .collection('notifications')
-                  .orderBy('createdAt', descending: true)
-                  .limit(50)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: _primaryGreen),
-                  );
-                }
-
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return _buildEmptyState();
-                }
-
-                final docs = snapshot.data!.docs;
-
-                return ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
-                  itemCount: docs.length,
-                  separatorBuilder: (_, i) => const SizedBox(height: 10),
-                  itemBuilder: (context, index) {
-                    final doc = docs[index];
-                    final data = doc.data() as Map<String, dynamic>;
-                    return _NotificationTile(
-                      docId: doc.id,
-                      userId: user.uid,
-                      title: data['title'] ?? 'Notification',
-                      body: data['body'] ?? '',
-                      type: data['type'] ?? 'general',
-                      isRead: data['read'] ?? false,
-                      createdAt: data['createdAt'] as Timestamp?,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFF8F0EE), Color(0xFFEDE0DC)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: user == null
+            ? const Center(child: Text('Please log in to see notifications.'))
+            : StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(user.uid)
+                    .collection('notifications')
+                    .orderBy('createdAt', descending: true)
+                    .limit(50)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: _primaryRed),
                     );
-                  },
-                );
-              },
-            ),
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return _buildEmptyState();
+                  }
+
+                  final docs = snapshot.data!.docs;
+
+                  return ListView.separated(
+                    padding: EdgeInsets.fromLTRB(
+                      16,
+                      MediaQuery.of(context).padding.top + kToolbarHeight + 12,
+                      16,
+                      100,
+                    ),
+                    itemCount: docs.length,
+                    separatorBuilder: (_, i) => const SizedBox(height: 10),
+                    itemBuilder: (context, index) {
+                      final doc = docs[index];
+                      final data = doc.data() as Map<String, dynamic>;
+                      return _NotificationTile(
+                        docId: doc.id,
+                        userId: user.uid,
+                        title: data['title'] ?? 'Notification',
+                        body: data['body'] ?? '',
+                        type: data['type'] ?? 'general',
+                        isRead: data['read'] ?? false,
+                        createdAt: data['createdAt'] as Timestamp?,
+                      );
+                    },
+                  );
+                },
+              ),
+      ),
     );
   }
 
@@ -114,12 +151,23 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: _primaryGreen.withValues(alpha: 0.08),
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFFB71C1C).withValues(alpha: 0.10),
+                    const Color(0xFF7B0000).withValues(alpha: 0.06),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
                 shape: BoxShape.circle,
+                border: Border.all(
+                  color: const Color(0xFFB71C1C).withValues(alpha: 0.15),
+                  width: 1.5,
+                ),
               ),
               child: Icon(
                 Icons.notifications_off_outlined,
-                color: _primaryGreen.withValues(alpha: 0.4),
+                color: const Color(0xFFB71C1C).withValues(alpha: 0.45),
                 size: 48,
               ),
             ),
@@ -129,7 +177,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
-                color: Colors.black87,
+                color: Color(0xFF5C4033),
               ),
             ),
             const SizedBox(height: 8),
@@ -138,7 +186,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey.shade600,
+                color: Colors.brown.shade300,
                 height: 1.5,
               ),
             ),
@@ -167,15 +215,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('All notifications marked as read'),
-            backgroundColor: _primaryGreen,
+            backgroundColor: Color(0xFFB71C1C),
           ),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -219,13 +267,13 @@ class _NotificationTile extends StatelessWidget {
   Color get _iconColor {
     switch (type) {
       case 'donation':
-        return const Color(0xFF24963F);
+        return const Color(0xFFB71C1C);
       case 'event':
-        return const Color(0xFF1565C0);
+        return const Color(0xFF7B0000);
       case 'approval':
-        return const Color(0xFF2E7D32);
+        return const Color(0xFFF0A500);
       case 'alert':
-        return const Color(0xFFFF6B35);
+        return const Color(0xFF5C4033);
       default:
         return const Color(0xFFB71C1C);
     }
@@ -264,18 +312,18 @@ class _NotificationTile extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: isRead
-                  ? Colors.white.withValues(alpha: 0.6)
-                  : Colors.white.withValues(alpha: 0.9),
+                  ? Colors.white.withValues(alpha: 0.55)
+                  : Colors.white.withValues(alpha: 0.85),
               borderRadius: BorderRadius.circular(18),
               border: Border.all(
                 color: isRead
-                    ? Colors.white.withValues(alpha: 0.6)
-                    : _iconColor.withValues(alpha: 0.15),
+                    ? const Color(0xFF5C4033).withValues(alpha: 0.08)
+                    : _iconColor.withValues(alpha: 0.20),
                 width: 1.2,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
+                  color: const Color(0xFFB71C1C).withValues(alpha: 0.06),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -289,7 +337,14 @@ class _NotificationTile extends StatelessWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: _iconColor.withValues(alpha: 0.1),
+                    gradient: LinearGradient(
+                      colors: [
+                        _iconColor.withValues(alpha: 0.14),
+                        _iconColor.withValues(alpha: 0.06),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Icon(_icon, color: _iconColor, size: 22),
@@ -307,9 +362,10 @@ class _NotificationTile extends StatelessWidget {
                               title,
                               style: TextStyle(
                                 fontSize: 15,
-                                fontWeight:
-                                    isRead ? FontWeight.w600 : FontWeight.w800,
-                                color: Colors.black87,
+                                fontWeight: isRead
+                                    ? FontWeight.w600
+                                    : FontWeight.w800,
+                                color: const Color(0xFF5C4033),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -320,7 +376,7 @@ class _NotificationTile extends StatelessWidget {
                             _timeAgo,
                             style: TextStyle(
                               fontSize: 11,
-                              color: Colors.grey.shade500,
+                              color: Colors.brown.shade300,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -332,7 +388,7 @@ class _NotificationTile extends StatelessWidget {
                           body,
                           style: TextStyle(
                             fontSize: 13,
-                            color: Colors.grey.shade700,
+                            color: Colors.brown.shade400,
                             height: 1.4,
                           ),
                           maxLines: 2,
