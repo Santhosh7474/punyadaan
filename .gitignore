@@ -1,0 +1,80 @@
+# ─── Mac OS ───────────────────────────────────────────────
+.DS_Store
+**/.DS_Store
+
+# ─── Miscellaneous ────────────────────────────────────────
+*.class
+*.log
+*.pyc
+*.swp
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# ─── IntelliJ / Android Studio ───────────────────────────
+*.iml
+*.ipr
+*.iws
+.idea/
+*.orig.dart
+
+# ─── VS Code ──────────────────────────────────────────────
+# .vscode/  ← commented out: you may want to share launch configs
+
+# ─── Flutter / Dart / Pub ────────────────────────────────
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+pubspec_overrides.yaml
+
+# ─── Symbolication & Obfuscation ─────────────────────────
+app.*.symbols
+app.*.map.json
+
+# ─── Android ─────────────────────────────────────────────
+/android/app/debug/
+/android/app/profile/
+/android/app/release/
+android/local.properties
+android/.gradle/
+android/captures/
+android/key.properties
+
+# ─── Android Signing Keys — NEVER COMMIT ─────────────────
+*.jks
+*.keystore
+key.properties
+
+# ─── iOS ─────────────────────────────────────────────────
+ios/.symlinks/
+ios/Pods/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+ios/Flutter/app.flx
+ios/Flutter/app.zip
+ios/Flutter/flutter_assets/
+ios/Flutter/flutter_export_environment.sh
+ios/ServiceDefinitions.json
+ios/Runner/GeneratedPluginRegistrant.*
+
+# ─── Firebase / Secrets ──────────────────────────────────
+# NOTE: google-services.json and GoogleService-Info.plist ARE
+# committed intentionally. They are required for the app to work.
+# They are safe for PRIVATE repositories only.
+.env
+.env.*
+secrets/
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist

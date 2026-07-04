@@ -1,0 +1,9 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.example.punyadaan",
+    "sha256_cert_fingerprints":
+    ["31:F2:B7:13:AA:DB:A1:BC:73:68:ED:D9:81:BC:98:72:BB:AC:20:2D:89:89:88:88:10:58:2C:58:2F:DA:3B:86"]
+  }
+}]
