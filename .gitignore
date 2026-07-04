@@ -76,3 +76,4 @@ ios/Runner/GeneratedPluginRegistrant.*
 .env
 .env.*
 secrets/
+android/app/google-services.json
